@@ -2349,10 +2349,10 @@ var ListTileSubTitle = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_h
         this$1.updateMaxMin()
 
         this$1.dimensions = {
-          'activator': this$1.measure(a),
-          'content': this$1.measure(c),
-          'list': this$1.measure(c, '.list'),
-          'selected': this$1.measure(c, '.list__tile--active', 'parent')
+          activator: this$1.measure(a),
+          content: this$1.measure(c),
+          list: this$1.measure(c, '.list'),
+          selected: this$1.auto ? this$1.measure(c, '.list__tile--active', 'parent') : null
         }
 
         this$1.offscreenFix()
@@ -2673,9 +2673,11 @@ var Overlay = {
 
   data: function data () {
     return {
+      content: {},
       inputValue: this.value,
       inputSearch: '',
       isBooted: false,
+      lastItem: 20,
       menuActive: false
     }
   },
@@ -2710,7 +2712,8 @@ var Overlay = {
       type: [Number, String],
       default: 300
     },
-    multiple: Boolean
+    multiple: Boolean,
+    offset: Boolean
   },
 
   computed: {
@@ -2724,19 +2727,19 @@ var Overlay = {
       }
     },
     filteredItems: function filteredItems () {
-      return this.items
+      return !this.auto ? this.items.slice(0, this.lastItem) : this.items
     },
     selectedItems: function selectedItems () {
       var this$1 = this;
 
       if (!this.multiple) {
-        return [this.items.findIndex(function (i) { return this$1.getValue(i) === this$1.inputValue; })]
+        return [this.inputValue]
       }
 
       var selected = []
 
-      this.items.forEach(function (o, i) {
-        if (this$1.inputValue.find(function (j) { return this$1.getValue(j) === this$1.getValue(o); })) {
+      this.items.forEach(function (i) {
+        if (this$1.inputValue.find(function (j) { return this$1.getValue(j) === this$1.getValue(i); })) {
           selected.push(i)
         }
       })
@@ -2749,11 +2752,30 @@ var Overlay = {
     inputValue: function inputValue (val) {
       this.$emit('input', val)
     },
-    menuActive: function menuActive () {
-      this.isBooted = true
-    },
     value: function value (val) {
       this.inputValue = val
+    },
+    menuActive: function menuActive (val) {
+      this.isBooted = true
+
+      if (!val) {
+        this.lastItem = 20
+      }
+    },
+    isBooted: function isBooted () {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        this$1.content = this$1.$refs.menu.$el.querySelector('.menu__content')
+
+        this$1.content.addEventListener('scroll', this$1.onScroll, false)
+      })
+    }
+  },
+
+  beforeDestroy: function beforeDestroy () {
+    if (this.isBooted) {
+      this.content.removeEventListener('scroll', this.onScroll, false)
     }
   },
 
@@ -2764,15 +2786,7 @@ var Overlay = {
       this.$nextTick(function () { return (this$1.focused = false); })
     },
     isDirty: function isDirty () {
-      return (
-        (!this.multiple &&
-          this.inputValue ||
-          this.inputValue &&
-          this.inputValue.toString().length > 0
-        ) ||
-        this.multiple &&
-        this.inputValue.length > 0
-      )
+      return this.selectedItems.length
     },
     focus: function focus () {
       this.focused = true
@@ -2782,6 +2796,23 @@ var Overlay = {
     },
     getValue: function getValue (item) {
       return typeof item === 'object' ? item[this.itemValue] : item
+    },
+    onScroll: function onScroll () {
+      var this$1 = this;
+
+      if (!this.menuActive) {
+        setTimeout(function () { return (this$1.content.scrollTop = 0); }, 50)
+      } else {
+        var showMoreItems = (
+          this.content.scrollHeight -
+          (this.content.scrollTop +
+          this.content.clientHeight)
+        ) < 200
+
+        if (showMoreItems) {
+          this.lastItem += 20
+        }
+      }
     },
     selectItem: function selectItem (item) {
       var this$1 = this;
@@ -2838,12 +2869,13 @@ var Overlay = {
           auto: this.auto,
           closeOnClick: !this.multiple,
           disabled: this.disabled,
-          offsetY: this.autocomplete,
+          offsetY: this.autocomplete || this.offset,
           value: this.menuActive,
           nudgeBottom: 2,
           nudgeTop: -16,
           nudgeYAuto: 2,
           nudgeXAuto: this.multiple ? -40 : -16,
+          nudgeWidth: 25,
           maxHeight: this.maxHeight,
           activator: this.$refs.activator
         },
@@ -2856,7 +2888,6 @@ var Overlay = {
     },
     genSelectionsAndSearch: function genSelectionsAndSearch (h) {
       return h('div', {
-        functional: true,
         'class': 'input-group__selections',
         ref: 'activator'
       }, this.isDirty() ? this.genSelections(h) : null)
@@ -2872,7 +2903,7 @@ var Overlay = {
       var chips = this.chips
       var slots = this.$scopedSlots.selection
 
-      this.inputValue.forEach(function (item, i) {
+      this.selectedItems.forEach(function (item, i) {
         if (slots) {
           children.push(this$1.genSlotSelection(h, item))
         } else if (chips) {
@@ -2897,12 +2928,12 @@ var Overlay = {
       return h('v-chip', {
         'class': 'chip--select-multi',
         props: { close: true },
-        on: { input: function () { return this$1.selectItem(item); } }
+        on: { input: function () { return this$1.selectItem(item); } },
+        nativeOn: { click: function (e) { return e.stopPropagation(); } }
       }, this.getText(item))
     },
     genCommaSelection: function genCommaSelection (h, item) {
       return h('div', {
-        functional: true,
         'class': {
           'input-group__selections__comma': true
         }
@@ -2948,15 +2979,15 @@ var Overlay = {
     genList: function genList (h) {
       var this$1 = this;
 
-      return h('v-list', {}, this.filteredItems.map(function (o, i) { return this$1.genListItem(h, o, i); }))
+      return h('v-list', { ref: 'list' }, this.filteredItems.map(function (o) { return this$1.genListItem(h, o); }))
     },
-    genListItem: function genListItem (h, item, i) {
-      return h('v-list-item', {}, [this.genTile(h, item, i)])
+    genListItem: function genListItem (h, item) {
+      return h('v-list-item', {}, [this.genTile(h, item)])
     },
-    genTile: function genTile (h, item, i) {
+    genTile: function genTile (h, item) {
       var this$1 = this;
 
-      var active = this.selectedItems.includes(i)
+      var active = this.selectedItems.includes(item)
       var data = {
         'class': {
           'list__tile--active': active,
