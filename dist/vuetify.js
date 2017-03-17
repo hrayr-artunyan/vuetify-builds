@@ -2732,19 +2732,13 @@ var Overlay = {
     selectedItems: function selectedItems () {
       var this$1 = this;
 
-      if (!this.multiple) {
-        return [this.inputValue]
-      }
-
-      var selected = []
-
-      this.items.forEach(function (i) {
-        if (this$1.inputValue.find(function (j) { return this$1.getValue(j) === this$1.getValue(i); })) {
-          selected.push(i)
+      return this.items.filter(function (i) {
+        if (!this$1.multiple) {
+          return this$1.getValue(i) === this$1.getValue(this$1.inputValue)
+        } else {
+          return this$1.inputValue.find(function (j) { return this$1.getValue(j) === this$1.getValue(i); })
         }
       })
-
-      return selected
     }
   },
 
