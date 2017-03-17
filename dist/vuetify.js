@@ -200,40 +200,28 @@ function debounce (func, threshold, execAsap) {
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 module.exports = function normalizeComponent (
-  name,
-  scriptExports,
+  rawScriptExports,
   compiledTemplate,
   scopeId,
   cssModules
 ) {
-  scriptExports = scriptExports || {}
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
 
   // ES6 modules interop
-  var type = typeof scriptExports.default
+  var type = typeof rawScriptExports.default
   if (type === 'object' || type === 'function') {
-    // check named exports
-    if (true) {
-      if (Object.keys(scriptExports).some(function (key) {
-        return key !== 'default' && key !== '__esModule'
-      })) {
-        console.error('named exports are not supported in *.vue files.')
-      }
-    }
-    scriptExports = scriptExports.default
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
   }
 
   // Vue.extend constructor export interop
   var options = typeof scriptExports === 'function'
     ? scriptExports.options
     : scriptExports
-
-  // default name option based on filename
-  if (options.name == null) {
-    options.name = name
-  }
 
   // render functions
   if (compiledTemplate) {
@@ -256,6 +244,7 @@ module.exports = function normalizeComponent (
   }
 
   return {
+    esModule: esModule,
     exports: scriptExports,
     options: options
   }
@@ -6196,12 +6185,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Alert",
   /* script */
   __webpack_require__(71),
   /* template */
-  __webpack_require__(119),
+  __webpack_require__(112),
   /* scopeId */
   null,
   /* cssModules */
@@ -6216,12 +6203,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "App",
   /* script */
   __webpack_require__(72),
   /* template */
-  __webpack_require__(111),
+  __webpack_require__(123),
   /* scopeId */
   null,
   /* cssModules */
@@ -6236,12 +6221,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Breadcrumbs",
   /* script */
   __webpack_require__(73),
   /* template */
-  __webpack_require__(122),
+  __webpack_require__(113),
   /* scopeId */
   null,
   /* cssModules */
@@ -6256,12 +6239,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "BreadcrumbsItem",
   /* script */
   __webpack_require__(74),
   /* template */
-  __webpack_require__(113),
+  __webpack_require__(126),
   /* scopeId */
   null,
   /* cssModules */
@@ -6276,12 +6257,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ButtonDropdown",
   /* script */
   __webpack_require__(75),
   /* template */
-  __webpack_require__(127),
+  __webpack_require__(118),
   /* scopeId */
   null,
   /* cssModules */
@@ -6296,12 +6275,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ButtonToggle",
   /* script */
   __webpack_require__(76),
   /* template */
-  __webpack_require__(114),
+  __webpack_require__(116),
   /* scopeId */
   null,
   /* cssModules */
@@ -6316,12 +6293,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Card",
   /* script */
   __webpack_require__(77),
   /* template */
-  __webpack_require__(112),
+  __webpack_require__(127),
   /* scopeId */
   null,
   /* cssModules */
@@ -6336,12 +6311,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "CardRow",
   /* script */
   __webpack_require__(78),
   /* template */
-  __webpack_require__(126),
+  __webpack_require__(109),
   /* scopeId */
   null,
   /* cssModules */
@@ -6356,12 +6329,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Carousel",
   /* script */
   __webpack_require__(79),
   /* template */
-  __webpack_require__(121),
+  __webpack_require__(119),
   /* scopeId */
   null,
   /* cssModules */
@@ -6376,12 +6347,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "CarouselItem",
   /* script */
   __webpack_require__(80),
   /* template */
-  __webpack_require__(125),
+  __webpack_require__(114),
   /* scopeId */
   null,
   /* cssModules */
@@ -6396,12 +6365,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ExpansionPanel",
   /* script */
   __webpack_require__(81),
   /* template */
-  __webpack_require__(110),
+  __webpack_require__(121),
   /* scopeId */
   null,
   /* cssModules */
@@ -6416,12 +6383,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ExpansionPanelContent",
   /* script */
   __webpack_require__(82),
   /* template */
-  __webpack_require__(123),
+  __webpack_require__(125),
   /* scopeId */
   null,
   /* cssModules */
@@ -6436,12 +6401,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Icon",
   /* script */
   __webpack_require__(83),
   /* template */
-  __webpack_require__(115),
+  __webpack_require__(117),
   /* scopeId */
   null,
   /* cssModules */
@@ -6456,12 +6419,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Modal",
   /* script */
   __webpack_require__(84),
   /* template */
-  __webpack_require__(116),
+  __webpack_require__(120),
   /* scopeId */
   null,
   /* cssModules */
@@ -6476,12 +6437,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Pagination",
   /* script */
   __webpack_require__(85),
   /* template */
-  __webpack_require__(120),
+  __webpack_require__(111),
   /* scopeId */
   null,
   /* cssModules */
@@ -6496,12 +6455,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Parallax",
   /* script */
   __webpack_require__(86),
   /* template */
-  __webpack_require__(124),
+  __webpack_require__(110),
   /* scopeId */
   null,
   /* cssModules */
@@ -6516,12 +6473,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ProgressCircular",
   /* script */
   __webpack_require__(87),
   /* template */
-  __webpack_require__(118),
+  __webpack_require__(115),
   /* scopeId */
   null,
   /* cssModules */
@@ -6536,12 +6491,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "ProgressLinear",
   /* script */
   __webpack_require__(88),
   /* template */
-  __webpack_require__(109),
+  __webpack_require__(124),
   /* scopeId */
   null,
   /* cssModules */
@@ -6556,12 +6509,10 @@ module.exports = Component.exports
 /***/ function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
-  /* name */
-  "Toolbar",
   /* script */
   __webpack_require__(89),
   /* template */
-  __webpack_require__(117),
+  __webpack_require__(122),
   /* scopeId */
   null,
   /* cssModules */
@@ -6577,22 +6528,10 @@ module.exports = Component.exports
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "progress-linear",
+    staticClass: "card__row",
     class: _vm.classes,
-    style: ({
-      height: _vm.height + 'px'
-    })
-  }, [_c('div', {
-    staticClass: "progress-linear__bar",
     style: (_vm.styles)
-  }, [_c('v-fade-transition', [(_vm.indeterminate) ? _c('div', {
-    staticClass: "progress-linear__bar__indeterminate"
-  }) : _vm._e()]), _c('v-slide-x-transition', [(!_vm.indeterminate) ? _c('div', {
-    staticClass: "progress-linear__bar__determinate",
-    style: ({
-      width: _vm.value + '%'
-    })
-  }) : _vm._e()])], 1)])
+  }, [_vm._t("default")], 2)
 },staticRenderFns: []}
 
 /***/ },
@@ -6600,242 +6539,25 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('ul', {
-    staticClass: "expansion-panel"
-  }, [_vm._t("default")], 2)
+  return _c('div', {
+    staticClass: "parallax",
+    style: ({
+      minHeight: this.normalizedHeight + 'px'
+    })
+  }, [_c('div', {
+    staticClass: "parallax__image-container"
+  }, [_c('img', {
+    ref: "img",
+    staticClass: "parallax__image",
+    style: (_vm.styles),
+    attrs: {
+      "src": _vm.src
+    }
+  }), _vm._t("default")], 2)])
 },staticRenderFns: []}
 
 /***/ },
 /* 111 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "with",
-    class: _vm.classes,
-    attrs: {
-      "id": _vm.id,
-      "data-app": "data-app"
-    }
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-
-/***/ },
-/* 112 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "card",
-    class: _vm.classes,
-    style: (_vm.styles)
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-
-/***/ },
-/* 113 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('li', [_c('a', {
-    staticClass: "breadcrumbs__item",
-    class: _vm.classes,
-    attrs: {
-      "href": _vm.href,
-      "target": _vm.target
-    }
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-
-/***/ },
-/* 114 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "btn-toggle",
-    class: _vm.classes
-  }, _vm._l((_vm.options), function(option, index) {
-    return _c('v-btn', {
-      attrs: {
-        "data-selected": _vm.isSelected(option),
-        "data-index": index,
-        "data-only-child": _vm.isSelected(option) && (!_vm.multiple || _vm.inputValue.length === 1),
-        "flat": "flat"
-      },
-      nativeOn: {
-        "click": function($event) {
-          $event.stopPropagation();
-          _vm.updateValue(option)
-        }
-      }
-    }, [(option.text) ? _c('span', {
-      domProps: {
-        "textContent": _vm._s(option.text)
-      }
-    }) : _vm._e(), (option.icon) ? _c('v-icon', [_vm._v(_vm._s(option.icon))]) : _vm._e()], 1)
-  }))
-},staticRenderFns: []}
-
-/***/ },
-/* 115 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('i', {
-    staticClass: "material-icons icon",
-    class: _vm.classes
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-
-/***/ },
-/* 116 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "modal__container"
-  }, [(_vm.$slots.activator) ? _c('div', {
-    ref: "activator",
-    staticClass: "modal__activator",
-    on: {
-      "click": function($event) {
-        _vm.isActive = !_vm.isActive
-      }
-    }
-  }, [_vm._t("activator")], 2) : _vm._e(), _c('v-overlay', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.isActive),
-      expression: "isActive"
-    }],
-    class: _vm.overlayClasses,
-    domProps: {
-      "value": (_vm.isActive)
-    },
-    on: {
-      "input": function($event) {
-        _vm.isActive = $event
-      }
-    }
-  }, [_c(_vm.computedTransition, {
-    tag: "component",
-    attrs: {
-      "origin": _vm.computedOrigin
-    }
-  }, [_c('div', {
-    directives: [{
-      name: "show",
-      rawName: "v-show",
-      value: (_vm.isActive),
-      expression: "isActive"
-    }, {
-      name: "click-outside",
-      rawName: "v-click-outside",
-      value: (_vm.closeConditional),
-      expression: "closeConditional"
-    }],
-    ref: "modal",
-    staticClass: "modal",
-    class: _vm.classes,
-    attrs: {
-      "id": _vm.id
-    }
-  }, [_vm._t("default")], 2)])], 1)], 1)
-},staticRenderFns: []}
-
-/***/ },
-/* 117 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('nav', {
-    staticClass: "toolbar",
-    class: _vm.classes
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-
-/***/ },
-/* 118 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "progress-circular",
-    class: _vm.classes,
-    style: (_vm.styles)
-  }, [_c('svg', {
-    style: (_vm.svgStyles),
-    attrs: {
-      "xmlns": "http://www.w3.org/2000/svg",
-      "height": _vm.svgSize,
-      "width": _vm.svgSize,
-      "viewBox": _vm.viewBox
-    }
-  }, [(!_vm.indeterminate) ? _c('circle', {
-    staticClass: "progress-circular__underlay",
-    attrs: {
-      "fill": "transparent",
-      "cx": _vm.cxy,
-      "cy": _vm.cxy,
-      "r": _vm.radius,
-      "stroke-width": _vm.width,
-      "stroke-dasharray": _vm.strokeDashArray,
-      "stroke-dashoffset": 0
-    }
-  }) : _vm._e(), _c('circle', {
-    staticClass: "progress-circular__overlay",
-    attrs: {
-      "fill": _vm.fill,
-      "cx": _vm.cxy,
-      "cy": _vm.cxy,
-      "r": _vm.radius,
-      "stroke-width": _vm.width,
-      "stroke-dasharray": _vm.strokeDashArray,
-      "stroke-dashoffset": _vm.strokeDashOffset
-    }
-  })]), _c('div', {
-    staticClass: "progress-circular__info"
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-
-/***/ },
-/* 119 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    directives: [{
-      name: "show",
-      rawName: "v-show",
-      value: (_vm.isActive),
-      expression: "isActive"
-    }],
-    staticClass: "alert",
-    class: _vm.classes
-  }, [(!_vm.hideIcon) ? _c('v-icon', {
-    staticClass: "alert__icon"
-  }, [_vm._v(_vm._s(_vm.mdIcon))]) : _vm._e(), _c('div', [_vm._t("default")], 2), (_vm.dismissible) ? _c('a', {
-    staticClass: "alert__dismissible",
-    attrs: {
-      "href": "#!"
-    },
-    on: {
-      "click": function($event) {
-        $event.preventDefault();
-        _vm.$emit('input', false)
-      }
-    }
-  }, [_c('v-icon', {
-    attrs: {
-      "right": "right"
-    }
-  }, [_vm._v("cancel")])], 1) : _vm._e()], 1)
-},staticRenderFns: []}
-
-/***/ },
-/* 120 */
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -6898,7 +6620,230 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 },staticRenderFns: []}
 
 /***/ },
-/* 121 */
+/* 112 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.isActive),
+      expression: "isActive"
+    }],
+    staticClass: "alert",
+    class: _vm.classes
+  }, [(!_vm.hideIcon) ? _c('v-icon', {
+    staticClass: "alert__icon"
+  }, [_vm._v(_vm._s(_vm.mdIcon))]) : _vm._e(), _c('div', [_vm._t("default")], 2), (_vm.dismissible) ? _c('a', {
+    staticClass: "alert__dismissible",
+    attrs: {
+      "href": "#!"
+    },
+    on: {
+      "click": function($event) {
+        $event.preventDefault();
+        _vm.$emit('input', false)
+      }
+    }
+  }, [_c('v-icon', {
+    attrs: {
+      "right": "right"
+    }
+  }, [_vm._v("cancel")])], 1) : _vm._e()], 1)
+},staticRenderFns: []}
+
+/***/ },
+/* 113 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('ul', {
+    staticClass: "breadcrumbs",
+    class: _vm.classes,
+    attrs: {
+      "items": _vm.items
+    }
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+
+/***/ },
+/* 114 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c(_vm.computedTransition, {
+    tag: "component"
+  }, [_c('div', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.active),
+      expression: "active"
+    }],
+    staticClass: "carousel__item",
+    class: {
+      'reverse': _vm.reverse
+    },
+    style: (_vm.styles)
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+
+/***/ },
+/* 115 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "progress-circular",
+    class: _vm.classes,
+    style: (_vm.styles)
+  }, [_c('svg', {
+    style: (_vm.svgStyles),
+    attrs: {
+      "xmlns": "http://www.w3.org/2000/svg",
+      "height": _vm.svgSize,
+      "width": _vm.svgSize,
+      "viewBox": _vm.viewBox
+    }
+  }, [(!_vm.indeterminate) ? _c('circle', {
+    staticClass: "progress-circular__underlay",
+    attrs: {
+      "fill": "transparent",
+      "cx": _vm.cxy,
+      "cy": _vm.cxy,
+      "r": _vm.radius,
+      "stroke-width": _vm.width,
+      "stroke-dasharray": _vm.strokeDashArray,
+      "stroke-dashoffset": 0
+    }
+  }) : _vm._e(), _c('circle', {
+    staticClass: "progress-circular__overlay",
+    attrs: {
+      "fill": _vm.fill,
+      "cx": _vm.cxy,
+      "cy": _vm.cxy,
+      "r": _vm.radius,
+      "stroke-width": _vm.width,
+      "stroke-dasharray": _vm.strokeDashArray,
+      "stroke-dashoffset": _vm.strokeDashOffset
+    }
+  })]), _c('div', {
+    staticClass: "progress-circular__info"
+  }, [_vm._t("default")], 2)])
+},staticRenderFns: []}
+
+/***/ },
+/* 116 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "btn-toggle",
+    class: _vm.classes
+  }, _vm._l((_vm.options), function(option, index) {
+    return _c('v-btn', {
+      attrs: {
+        "data-selected": _vm.isSelected(option),
+        "data-index": index,
+        "data-only-child": _vm.isSelected(option) && (!_vm.multiple || _vm.inputValue.length === 1),
+        "flat": "flat"
+      },
+      nativeOn: {
+        "click": function($event) {
+          $event.stopPropagation();
+          _vm.updateValue(option)
+        }
+      }
+    }, [(option.text) ? _c('span', {
+      domProps: {
+        "textContent": _vm._s(option.text)
+      }
+    }) : _vm._e(), (option.icon) ? _c('v-icon', [_vm._v(_vm._s(option.icon))]) : _vm._e()], 1)
+  }))
+},staticRenderFns: []}
+
+/***/ },
+/* 117 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('i', {
+    staticClass: "material-icons icon",
+    class: _vm.classes
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+
+/***/ },
+/* 118 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "btn-dropdown",
+    class: _vm.classes
+  }, [_c('v-menu', {
+    attrs: {
+      "auto": !_vm.overflow && !_vm.segmented && !_vm.editable,
+      "right": !_vm.overflow && !_vm.segmented && !_vm.editable,
+      "max-height": _vm.maxHeight,
+      "offset-y": _vm.overflow || _vm.segmented || _vm.editable,
+      "close-on-click": !_vm.isActive,
+      "open-on-click": !_vm.isActive,
+      "bottom": "bottom"
+    },
+    model: {
+      value: (_vm.isActive),
+      callback: function($$v) {
+        _vm.isActive = $$v
+      },
+      expression: "isActive"
+    }
+  }, [_c('v-text-field', {
+    ref: "input",
+    attrs: {
+      "type": _vm.editable ? 'text' : 'button',
+      "label": _vm.label,
+      "light": _vm.light && !_vm.dark,
+      "dark": _vm.dark,
+      "single-line": "single-line",
+      "append-icon": "arrow_drop_down"
+    },
+    on: {
+      "focused": function($event) {
+        _vm.isActive = arguments[0]
+      }
+    },
+    nativeOn: {
+      "keyup": function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13)) { return null; }
+        _vm.updateValue(_vm.editableValue)
+      }
+    },
+    slot: "activator",
+    model: {
+      value: (_vm.editableValue),
+      callback: function($$v) {
+        _vm.editableValue = $$v
+      },
+      expression: "editableValue"
+    }
+  }), _c('v-list', _vm._l((_vm.options), function(option, index) {
+    return _c('v-list-item', [_c('v-list-tile', {
+      class: {
+        'list__tile--active': _vm.inputValue === option
+      },
+      nativeOn: {
+        "click": function($event) {
+          _vm.updateValue(option)
+        }
+      }
+    }, [(option.action) ? _c('v-list-tile-action', [_c('v-icon', [_vm._v(_vm._s(option.action))])], 1) : _vm._e(), (option.text) ? _c('v-list-tile-content', [_c('v-list-tile-title', [_vm._v(_vm._s(option.text))])], 1) : _vm._e()], 1)], 1)
+  }))], 1)], 1)
+},staticRenderFns: []}
+
+/***/ },
+/* 119 */
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -6950,21 +6895,117 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 },staticRenderFns: []}
 
 /***/ },
-/* 122 */
+/* 120 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "modal__container"
+  }, [(_vm.$slots.activator) ? _c('div', {
+    ref: "activator",
+    staticClass: "modal__activator",
+    on: {
+      "click": function($event) {
+        _vm.isActive = !_vm.isActive
+      }
+    }
+  }, [_vm._t("activator")], 2) : _vm._e(), _c('v-overlay', {
+    class: _vm.overlayClasses,
+    model: {
+      value: (_vm.isActive),
+      callback: function($$v) {
+        _vm.isActive = $$v
+      },
+      expression: "isActive"
+    }
+  }, [_c(_vm.computedTransition, {
+    tag: "component",
+    attrs: {
+      "origin": _vm.computedOrigin
+    }
+  }, [_c('div', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.isActive),
+      expression: "isActive"
+    }, {
+      name: "click-outside",
+      rawName: "v-click-outside",
+      value: (_vm.closeConditional),
+      expression: "closeConditional"
+    }],
+    ref: "modal",
+    staticClass: "modal",
+    class: _vm.classes,
+    attrs: {
+      "id": _vm.id
+    }
+  }, [_vm._t("default")], 2)])], 1)], 1)
+},staticRenderFns: []}
+
+/***/ },
+/* 121 */
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('ul', {
-    staticClass: "breadcrumbs",
-    class: _vm.classes,
-    attrs: {
-      "items": _vm.items
-    }
+    staticClass: "expansion-panel"
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+
+/***/ },
+/* 122 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('nav', {
+    staticClass: "toolbar",
+    class: _vm.classes
   }, [_vm._t("default")], 2)
 },staticRenderFns: []}
 
 /***/ },
 /* 123 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "with",
+    class: _vm.classes,
+    attrs: {
+      "id": _vm.id,
+      "data-app": "data-app"
+    }
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+
+/***/ },
+/* 124 */
+/***/ function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "progress-linear",
+    class: _vm.classes,
+    style: ({
+      height: _vm.height + 'px'
+    })
+  }, [_c('div', {
+    staticClass: "progress-linear__bar",
+    style: (_vm.styles)
+  }, [_c('v-fade-transition', [(_vm.indeterminate) ? _c('div', {
+    staticClass: "progress-linear__bar__indeterminate"
+  }) : _vm._e()]), _c('v-slide-x-transition', [(!_vm.indeterminate) ? _c('div', {
+    staticClass: "progress-linear__bar__determinate",
+    style: ({
+      width: _vm.value + '%'
+    })
+  }) : _vm._e()])], 1)])
+},staticRenderFns: []}
+
+/***/ },
+/* 125 */
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -7006,59 +7047,18 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 },staticRenderFns: []}
 
 /***/ },
-/* 124 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "parallax",
-    style: ({
-      minHeight: this.normalizedHeight + 'px'
-    })
-  }, [_c('div', {
-    staticClass: "parallax__image-container"
-  }, [_c('img', {
-    ref: "img",
-    staticClass: "parallax__image",
-    style: (_vm.styles),
-    attrs: {
-      "src": _vm.src
-    }
-  }), _vm._t("default")], 2)])
-},staticRenderFns: []}
-
-/***/ },
-/* 125 */
-/***/ function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c(_vm.computedTransition, {
-    tag: "component"
-  }, [_c('div', {
-    directives: [{
-      name: "show",
-      rawName: "v-show",
-      value: (_vm.active),
-      expression: "active"
-    }],
-    staticClass: "carousel__item",
-    class: {
-      'reverse': _vm.reverse
-    },
-    style: (_vm.styles)
-  }, [_vm._t("default")], 2)])
-},staticRenderFns: []}
-
-/***/ },
 /* 126 */
 /***/ function(module, exports) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "card__row",
+  return _c('li', [_c('a', {
+    staticClass: "breadcrumbs__item",
     class: _vm.classes,
-    style: (_vm.styles)
-  }, [_vm._t("default")], 2)
+    attrs: {
+      "href": _vm.href,
+      "target": _vm.target
+    }
+  }, [_vm._t("default")], 2)])
 },staticRenderFns: []}
 
 /***/ },
@@ -7067,78 +7067,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "btn-dropdown",
-    class: _vm.classes
-  }, [_c('v-menu', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.isActive),
-      expression: "isActive"
-    }],
-    attrs: {
-      "auto": !_vm.overflow && !_vm.segmented && !_vm.editable,
-      "right": !_vm.overflow && !_vm.segmented && !_vm.editable,
-      "max-height": _vm.maxHeight,
-      "offset-y": _vm.overflow || _vm.segmented || _vm.editable,
-      "close-on-click": !_vm.isActive,
-      "open-on-click": !_vm.isActive,
-      "bottom": "bottom"
-    },
-    domProps: {
-      "value": (_vm.isActive)
-    },
-    on: {
-      "input": function($event) {
-        _vm.isActive = $event
-      }
-    }
-  }, [_c('v-text-field', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.editableValue),
-      expression: "editableValue"
-    }],
-    ref: "input",
-    attrs: {
-      "type": _vm.editable ? 'text' : 'button',
-      "label": _vm.label,
-      "light": _vm.light && !_vm.dark,
-      "dark": _vm.dark,
-      "single-line": "single-line",
-      "append-icon": "arrow_drop_down"
-    },
-    domProps: {
-      "value": (_vm.editableValue)
-    },
-    on: {
-      "focused": function($event) {
-        _vm.isActive = arguments[0]
-      },
-      "input": function($event) {
-        _vm.editableValue = $event
-      }
-    },
-    nativeOn: {
-      "keyup": function($event) {
-        if (_vm._k($event.keyCode, "enter", 13)) { return; }
-        _vm.updateValue(_vm.editableValue)
-      }
-    },
-    slot: "activator"
-  }), _c('v-list', _vm._l((_vm.options), function(option, index) {
-    return _c('v-list-item', [_c('v-list-tile', {
-      class: {
-        'list__tile--active': _vm.inputValue === option
-      },
-      nativeOn: {
-        "click": function($event) {
-          _vm.updateValue(option)
-        }
-      }
-    }, [(option.action) ? _c('v-list-tile-action', [_c('v-icon', [_vm._v(_vm._s(option.action))])], 1) : _vm._e(), (option.text) ? _c('v-list-tile-content', [_c('v-list-tile-title', [_vm._v(_vm._s(option.text))])], 1) : _vm._e()], 1)], 1)
-  }))], 1)], 1)
+    staticClass: "card",
+    class: _vm.classes,
+    style: (_vm.styles)
+  }, [_vm._t("default")], 2)
 },staticRenderFns: []}
 
 /***/ },
