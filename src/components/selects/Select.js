@@ -1,16 +1,16 @@
 import Input from '../../mixins/input'
 import Generators from './mixins/generators'
+import Autocomplete from './mixins/autocomplete'
 
 export default {
   name: 'select',
 
-  mixins: [Input, Generators],
+  mixins: [Autocomplete, Input, Generators],
 
   data () {
     return {
       content: {},
       inputValue: this.value,
-      inputSearch: '',
       isBooted: false,
       lastItem: 20,
       menuActive: false
@@ -62,9 +62,18 @@ export default {
       }
     },
     filteredItems () {
-      return !this.auto ? this.items.slice(0, this.lastItem) : this.items
+      const items = this.autocomplete && this.searchValue
+        ? this.filterSearch()
+        : this.items
+
+      return !this.auto ? items.slice(0, this.lastItem) : items
+    },
+    isDirty () {
+      return this.selectedItems.length
     },
     selectedItems () {
+      if (this.inputValue === null) return []
+
       return this.items.filter(i => {
         if (!this.multiple) {
           return this.getValue(i) === this.getValue(this.inputValue)
@@ -81,13 +90,14 @@ export default {
     },
     value (val) {
       this.inputValue = val
+      this.validate()
     },
     menuActive (val) {
       this.isBooted = true
+      this.lastItem += !val ? 20 : 0
 
-      if (!val) {
-        this.lastItem = 20
-      }
+      if (!val) this.blur()
+      else this.focus()
     },
     isBooted () {
       this.$nextTick(() => {
@@ -108,17 +118,14 @@ export default {
     blur () {
       this.$nextTick(() => (this.focused = false))
     },
-    isDirty () {
-      return this.selectedItems.length
-    },
     focus () {
       this.focused = true
     },
     getText (item) {
-      return typeof item === 'object' ? item[this.itemText] : item
+      return item === Object(item) ? item[this.itemText] : item
     },
     getValue (item) {
-      return typeof item === 'object' ? item[this.itemValue] : item
+      return item === Object(item) ? item[this.itemValue] : item
     },
     onScroll () {
       if (!this.menuActive) {
@@ -139,21 +146,32 @@ export default {
       if (!this.multiple) {
         this.inputValue = item
       } else {
-        const i = this.inputValue.findIndex(i => this.getValue(i) === this.getValue(item))
-
-        if (i !== -1) {
-          this.inputValue.splice(i, 1)
+        if (this.inputValue === null) {
+          this.inputValue = [item]
         } else {
-          this.inputValue.push(item)
+          const i = this.inputValue.findIndex(i => this.getValue(i) === this.getValue(item))
+
+          if (i !== -1) {
+            this.inputValue.splice(i, 1)
+          } else {
+            this.inputValue.push(item)
+          }
         }
+      }
+
+      if (this.autocomplete) {
+        this.$nextTick(() => {
+          this.searchValue = null
+          this.$refs.input.focus()
+        })
       }
     }
   },
 
   render (h) {
     return h('div', {}, [
-      this.genInputGroup(h, [this.genSelectionsAndSearch(h)]),
-      this.genMenu(h)
+      this.genInputGroup([this.genSelectionsAndSearch()]),
+      this.genMenu()
     ])
   }
 }
