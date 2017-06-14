@@ -765,10 +765,10 @@ module.exports = function normalizeComponent (
       this.isTransitioning = true;
       __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["e" /* addOnceEventListener */])(overlay, 'transitionend', () => this.isTransitioning = false);
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         overlay.className += ' overlay--active';
         this.overlay = overlay;
-      }, 0);
+      });
 
       return true;
     },
@@ -5969,8 +5969,8 @@ const TableOverflow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_he
       } else if (!this.filteredItems.length) {
         children = [this.genEmptyBody(this.noResultsText)];
       } else {
-        children = this.filteredItems.map(item => {
-          const props = { item };
+        children = this.filteredItems.map((item, index) => {
+          const props = { item, index };
 
           Object.defineProperty(props, 'selected', {
             get: () => this.selected[item[this.selectedKey]],
@@ -6226,13 +6226,14 @@ const TableOverflow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_he
 
   props: {
     centered: Boolean,
+    fixed: Boolean,
     grow: Boolean,
     icons: Boolean,
     mobileBreakPoint: {
       type: [Number, String],
       default: 1024
     },
-    scrollBars: Boolean,
+    scrollable: Boolean,
     value: String
   },
 
@@ -6241,9 +6242,11 @@ const TableOverflow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_he
       return {
         'tabs': true,
         'tabs--centered': this.centered,
+        'tabs--fixed': this.fixed,
         'tabs--grow': this.grow,
         'tabs--icons': this.icons,
-        'tabs--scroll-bars': this.scrollBars,
+        'tabs--mobile': this.isMobile,
+        'tabs--scroll-bars': this.scrollable,
         'dark--text': this.dark,
         'light--text': this.light
       };
@@ -6520,7 +6523,7 @@ const TableOverflow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_he
     action() {
       const to = this.to || this.href;
 
-      if (to === Object(to)) return this._uid;
+      if (!to || to === Object(to)) return this._uid;
 
       return to.replace('#', '');
     }
@@ -6544,6 +6547,8 @@ const TableOverflow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_he
     },
     click(e) {
       e.preventDefault();
+
+      if (!this.to && !this.href) return;
 
       if (!this.router) {
         this.tabClick(this.action);
