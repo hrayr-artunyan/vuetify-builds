@@ -2239,7 +2239,9 @@ const Footer = {
         'input-group--single-line': this.singleLine,
         'input-group--solo': this.solo,
         'input-group--multi-line': this.multiLine,
-        'input-group--full-width': this.fullWidth
+        'input-group--full-width': this.fullWidth,
+        'input-group--prefix': this.prefix,
+        'input-group--suffix': this.suffix
       };
     },
     hasError() {
@@ -5258,6 +5260,7 @@ const defaultDateFormat = val => new Date(val).toISOString().substr(0, 10);
   data() {
     return {
       inputValue: null,
+      isBooted: false,
       steps: [],
       content: [],
       isReverse: false
@@ -5275,6 +5278,7 @@ const defaultDateFormat = val => new Date(val).toISOString().substr(0, 10);
     classes() {
       return {
         'stepper': true,
+        'stepper--is-booted': this.isBooted,
         'stepper--vertical': this.vertical,
         'stepper--alt-labels': this.altLabels,
         'stepper--non-linear': this.nonLinear
@@ -5311,6 +5315,10 @@ const defaultDateFormat = val => new Date(val).toISOString().substr(0, 10);
       });
 
       this.inputValue = this.value || this.steps[0].step || 1;
+
+      // TODO: Figure out a way to fix this hack
+      // No transition before booted
+      setTimeout(() => this.isBooted = true, 25);
     },
     stepClick(step) {
       this.inputValue = step;
