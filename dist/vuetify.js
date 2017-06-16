@@ -1640,10 +1640,13 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_schemable__ = __webpack_require__(2);
+
+
 /* harmony default export */ __webpack_exports__["a"] = ({
   functional: true,
 
-  name: 'card',
+  mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_schemable__["a" /* default */]],
 
   props: {
     flat: Boolean,
@@ -1671,6 +1674,8 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
     if (props.hover) data.staticClass += ' card--hover';
     if (props.raised) data.staticClass += ' card--raised';
     if (props.flat) data.staticClass += ' card--flat';
+    if (props.light) data.staticClass += ' light--text';
+    if (props.dark) data.staticClass += ' dark--text';
 
     if (props.img) {
       data.style.background = 'url(' + props.img + ') center center / cover no-repeat';
@@ -1927,6 +1932,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
 
+  mounted: function mounted() {
+    var _this = this;
+
+    this.isBooted = this.isActive;
+    this.$vuetify.load(function () {
+      return _this.isActive && _this.genOverlay();
+    });
+  },
+
+
   methods: {
     closeConditional: function closeConditional(e) {
       // close dialog if !persistent and clicked outside
@@ -1935,7 +1950,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
 
   render: function render(h) {
-    var _this = this;
+    var _this2 = this;
 
     var children = [];
     var data = {
@@ -1956,7 +1971,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         on: {
           click: function click(e) {
             e.stopPropagation();
-            if (!_this.disabled) _this.isActive = !_this.isActive;
+            if (!_this2.disabled) _this2.isActive = !_this2.isActive;
           }
         }
       }, [this.$slots.activator]));
@@ -1964,7 +1979,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     var dialog = h(this.computedTransition, {
       props: { origin: this.origin }
-    }, [h('div', data, [this.$slots.default])]);
+    }, [h('div', data, this.lazy && this.isBooted || !this.lazy ? this.$slots.default : null)]);
 
     children.push(h('div', {
       'class': 'dialog__content',
@@ -2568,63 +2583,29 @@ var Footer = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_helpers__ = __webpack_require__(0);
 
 
-var Flex = {
-  functional: true,
+var Grid = function Grid(name) {
+  return {
+    functional: true,
 
-  render: function render(h, _ref) {
-    var data = _ref.data,
-        children = _ref.children;
+    render: function render(h, _ref) {
+      var data = _ref.data,
+          children = _ref.children;
 
-    data.staticClass = ('flex ' + (data.staticClass || '')).trim();
+      data.staticClass = (name + ' ' + (data.staticClass || '')).trim();
 
-    if (data.attrs) {
-      data.staticClass += ' ' + Object.keys(data.attrs).join(' ');
-      delete data.attrs;
+      if (data.attrs) {
+        data.staticClass += ' ' + Object.keys(data.attrs).join(' ');
+        delete data.attrs;
+      }
+
+      return h('div', data, children);
     }
-
-    return h('div', data, children);
-  }
+  };
 };
 
-var Layout = {
-  functional: true,
-
-  render: function render(h, _ref2) {
-    var data = _ref2.data,
-        children = _ref2.children;
-
-    data.staticClass = data.staticClass ? 'layout ' + data.staticClass : 'layout';
-
-    if (data.attrs) {
-      data.staticClass += ' ' + Object.keys(data.attrs).join(' ');
-      delete data.attrs;
-    }
-
-    return h('div', data, children);
-  }
-};
-
-var Container = {
-  functional: true,
-
-  props: {
-    fluid: Boolean,
-    fillHeight: Boolean
-  },
-
-  render: function render(h, _ref3) {
-    var props = _ref3.props,
-        data = _ref3.data,
-        children = _ref3.children;
-
-    data.staticClass = data.staticClass ? 'container ' + data.staticClass : 'container';
-
-    if (props.fluid) data.staticClass += ' container--fluid';
-    if (props.fillHeight) data.staticClass += ' fill-height';
-
-    return h('div', data, children);
-  }
-};
+var Container = Grid('container');
+var Layout = Grid('layout');
+var Flex = Grid('flex');
 
 var Spacer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* createSimpleFunctional */])('spacer');
 
