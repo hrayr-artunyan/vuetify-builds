@@ -21,16 +21,22 @@ $grid-breakpoints := {
   xl: (1920px - 16px) // https://material.io/guidelines/layout/responsive-ui.html#responsive-ui-breakpoints
 }
 
+$grid-gutter = 8px
+$grid-columns := 12
+$grid-gutters := {
+  xs: ($grid-gutter / 2)
+  sm: $grid-gutter
+  md: ($grid-gutter * 2)
+  lg: ($grid-gutter * 3)
+  xl: ($grid-gutter * 4)
+}
+
 $container-max-widths := {
   sm: $grid-breakpoints.sm
   md: $grid-breakpoints.md
   lg: $grid-breakpoints.lg
   xl: $grid-breakpoints.xl
 }
-
-$grid-gutter := 24px
-$grid-gutter-mobile := 16px
-$grid-columns := 12
 
 
 // Display
@@ -160,7 +166,7 @@ $button-background-color := #999999
 $button-height := 36px
 $button-font-size := 14px
 $button-font-weight := 500
-$button-margin := 0 8px
+$button-margin := 6px 8px
 $button-min-width := 88px
 $button-padding := 0 16px
 $button-text-transform := uppercase
