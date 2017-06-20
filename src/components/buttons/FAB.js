@@ -1,4 +1,3 @@
-import Contextualable from '../../mixins/contextualable'
 import GenerateRouteLink from '../../mixins/route-link'
 import Schemable from '../../mixins/schemable'
 import Toggleable from '../../mixins/toggleable'
@@ -6,7 +5,9 @@ import Toggleable from '../../mixins/toggleable'
 export default {
   name: 'fab',
 
-  mixins: [Contextualable, GenerateRouteLink, Schemable, Toggleable],
+  mixins: [GenerateRouteLink, Schemable, Toggleable],
+
+  provide: { isFab: true },
 
   data: () => ({
     changeTimeout: {},
@@ -15,45 +16,19 @@ export default {
 
   props: {
     absolute: Boolean,
-    activeClass: {
-      type: String,
-      default: 'fab--active'
-    },
-    default: Boolean,
-    flat: Boolean,
     lateral: Boolean,
-    loading: Boolean,
-    outline: Boolean,
+    listDirection: {
+      type: String,
+      default: 'top'
+    },
     positionX: [Number, String],
     positionY: [Number, String],
     hidden: Boolean,
-    ripple: {
-      type: [Boolean, Object],
-      default: true
-    },
-    mini: Boolean,
-    tag: {
-      type: String,
-      default: 'button'
-    },
-    top: {
-      type: [Number, String]
-    },
-    right: {
-      type: [Number, String],
-      default: 24
-    },
-    bottom: {
-      type: [Number, String],
-      default: 124
-    },
-    left: {
-      type: [Number, String]
-    },
-    type: {
-      type: String,
-      default: 'button'
-    }
+    hover: Boolean,
+    top: Boolean,
+    right: Boolean,
+    bottom: Boolean,
+    left: Boolean
   },
 
   computed: {
@@ -61,73 +36,63 @@ export default {
       return {
         'fab': true,
         'fab--absolute': this.absolute,
-        'fab--small': this.mini,
         'fab--hidden': this.hidden,
-        'fab--lateral': this.lateral,
+        'fab--hover': this.hover,
+        'fab--is-active': this.isActive,
         'fab--is-changing': this.isChanging,
-        'primary': this.primary && !this.outline,
-        'secondary': this.secondary && !this.outline,
-        'success': this.success && !this.outline,
-        'info': this.info && !this.outline,
-        'warning': this.warning && !this.outline,
-        'error': this.error && !this.outline
-      }
-    },
-    styles () {
-      const pos = (p) => typeof p === 'undefined' ? 'initial' : !isNaN(p) ? `${p}px` : p
-
-      return {
-        top: pos(this.top),
-        right: pos(this.right),
-        bottom: pos(this.bottom),
-        left: pos(this.left)
+        'fab--top': this.top,
+        'fab--right': this.right,
+        'fab--bottom': this.bottom,
+        'fab--left': this.left,
+        [`fab--list-${this.listDirection}`]: this.listDirection
       }
     }
   },
 
   methods: {
-    changeAction () {
-      this.isChanging = true
-      clearTimeout(this.changeTimeout)
-      this.changeTimeout = setTimeout(() => (this.isChanging = false), 600)
+    genContent () {
+      return this.$createElement('div', {
+        'class': 'fab__activator'
+      }, this.$slots.activator
+        ? this.$slots.activator
+        : this.$slots.default
+      )
     },
-    genContent (h) {
-      return h('span', { 'class': 'fab__content' }, [this.$slots.default])
+    genDial () {
+      if (!this.$slots.activator) return
+
+      return this.$createElement('div', {
+        'class': 'fab__speed-dial'
+      }, this.$slots.default)
     },
-    genLoader (h) {
-      const children = []
-
-      if (!this.$slots.loader) {
-        children.push(h('v-progress-circular', {
-          props: {
-            indeterminate: true,
-            size: 26
-          }
-        }))
-      } else {
-        children.push(this.$slots.loader)
-      }
-
-      return h('span', { 'class': 'fab__loading' }, children)
+    toggle () {
+      this.isActive = !this.isActive
     }
   },
 
   render (h) {
-    const { tag, data } = this.generateRouteLink()
-    const children = []
-
-    if (tag === 'button') {
-      data.attrs.type = this.type
+    const data = {
+      'class': this.classes
     }
 
-    data.style = this.styles
+    if (this.hover) {
+      data.on = {
+        mouseover: () => (this.isActive = true),
+        mouseout: () => (this.isActive = false)
+      }
+    } else {
+      data.on = {
+        click: this.toggle
+      }
 
-    children.push(this.genContent(h))
-
-    if (this.loading) {
-      children.push(this.genLoader(h))
+      data.directives = [{
+        name: 'click-outside'
+      }]
     }
 
-    return h(tag, data, children)
+    return h('div', data, [
+      this.genDial(),
+      this.genContent()
+    ])
   }
 }
