@@ -395,7 +395,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       return this.$createElement('label', data, this.label);
     },
-    toggle: function toggle() {},
     genMessages: function genMessages() {
       var _this = this;
 
@@ -472,6 +471,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
           },
           keydown: function keydown(e) {
+            if (!_this2.toggle) return;
+
             if ([13, 32].includes(e.keyCode)) {
               e.preventDefault();
               _this2.toggle();
@@ -711,8 +712,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   },
   beforeDestroy: function beforeDestroy() {
-    this.app;
-    this.app.contains(this.$refs.content) && this.app.removeChild(this.$refs.content);
+    this.app && this.app.contains(this.$refs.content) && this.app.removeChild(this.$refs.content);
   }
 });
 
@@ -785,6 +785,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     hideOverlay: Boolean,
     overflow: Boolean
   },
+
+  beforeDestroy: function beforeDestroy() {
+    this.removeOverlay();
+  },
+
 
   methods: {
     genOverlay: function genOverlay() {
@@ -1352,6 +1357,8 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 /* harmony default export */ __webpack_exports__["a"] = ({
   name: 'btn',
 
+  inject: ['isFab'],
+
   mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_contextualable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_3__mixins_route_link__["a" /* default */], __WEBPACK_IMPORTED_MODULE_2__mixins_schemable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__mixins_toggleable__["a" /* default */]],
 
   props: {
@@ -1418,7 +1425,7 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
   methods: {
     // Prevent focus to match md spec
     click: function click() {
-      this.$el.blur();
+      !this.isFab && this.$el.blur();
     },
     genContent: function genContent(h) {
       return h('div', { 'class': 'btn__content' }, [this.$slots.default]);
@@ -1452,6 +1459,8 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
       data.attrs.type = this.type;
     }
 
+    this.isFab && (data.attrs.tabindex = -1);
+
     children.push(this.genContent(h));
 
     if (this.loading) {
@@ -1467,10 +1476,10 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_contextualable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mixins_route_link__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_schemable__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_toggleable__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_route_link__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mixins_schemable__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_toggleable__ = __webpack_require__(1);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
@@ -1479,7 +1488,9 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 /* harmony default export */ __webpack_exports__["a"] = ({
   name: 'fab',
 
-  mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_contextualable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__mixins_route_link__["a" /* default */], __WEBPACK_IMPORTED_MODULE_2__mixins_schemable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_3__mixins_toggleable__["a" /* default */]],
+  mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_route_link__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__mixins_schemable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_2__mixins_toggleable__["a" /* default */]],
+
+  provide: { isFab: true },
 
   data: function data() {
     return {
@@ -1490,129 +1501,83 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 
   props: {
     absolute: Boolean,
-    activeClass: {
-      type: String,
-      default: 'fab--active'
-    },
-    default: Boolean,
-    flat: Boolean,
     lateral: Boolean,
-    loading: Boolean,
-    outline: Boolean,
+    listDirection: {
+      type: String,
+      default: 'top'
+    },
     positionX: [Number, String],
     positionY: [Number, String],
     hidden: Boolean,
-    ripple: {
-      type: [Boolean, Object],
-      default: true
-    },
-    mini: Boolean,
-    tag: {
-      type: String,
-      default: 'button'
-    },
-    top: {
-      type: [Number, String]
-    },
-    right: {
-      type: [Number, String],
-      default: 24
-    },
-    bottom: {
-      type: [Number, String],
-      default: 124
-    },
-    left: {
-      type: [Number, String]
-    },
-    type: {
-      type: String,
-      default: 'button'
-    }
+    hover: Boolean,
+    top: Boolean,
+    right: Boolean,
+    bottom: Boolean,
+    left: Boolean
   },
 
   computed: {
     classes: function classes() {
-      return {
+      return _defineProperty({
         'fab': true,
         'fab--absolute': this.absolute,
-        'fab--small': this.mini,
         'fab--hidden': this.hidden,
-        'fab--lateral': this.lateral,
+        'fab--hover': this.hover,
+        'fab--is-active': this.isActive,
         'fab--is-changing': this.isChanging,
-        'primary': this.primary && !this.outline,
-        'secondary': this.secondary && !this.outline,
-        'success': this.success && !this.outline,
-        'info': this.info && !this.outline,
-        'warning': this.warning && !this.outline,
-        'error': this.error && !this.outline
-      };
-    },
-    styles: function styles() {
-      var pos = function pos(p) {
-        return typeof p === 'undefined' ? 'initial' : !isNaN(p) ? p + 'px' : p;
-      };
-
-      return {
-        top: pos(this.top),
-        right: pos(this.right),
-        bottom: pos(this.bottom),
-        left: pos(this.left)
-      };
+        'fab--top': this.top,
+        'fab--right': this.right,
+        'fab--bottom': this.bottom,
+        'fab--left': this.left
+      }, 'fab--list-' + this.listDirection, this.listDirection);
     }
   },
 
   methods: {
-    changeAction: function changeAction() {
-      var _this = this;
-
-      this.isChanging = true;
-      clearTimeout(this.changeTimeout);
-      this.changeTimeout = setTimeout(function () {
-        return _this.isChanging = false;
-      }, 600);
+    genContent: function genContent() {
+      return this.$createElement('div', {
+        'class': 'fab__activator'
+      }, this.$slots.activator ? this.$slots.activator : this.$slots.default);
     },
-    genContent: function genContent(h) {
-      return h('span', { 'class': 'fab__content' }, [this.$slots.default]);
+    genDial: function genDial() {
+      if (!this.$slots.activator) return;
+
+      return this.$createElement('div', {
+        'class': 'fab__speed-dial'
+      }, this.$slots.default);
     },
-    genLoader: function genLoader(h) {
-      var children = [];
-
-      if (!this.$slots.loader) {
-        children.push(h('v-progress-circular', {
-          props: {
-            indeterminate: true,
-            size: 26
-          }
-        }));
-      } else {
-        children.push(this.$slots.loader);
-      }
-
-      return h('span', { 'class': 'fab__loading' }, children);
+    toggle: function toggle() {
+      this.isActive = !this.isActive;
     }
   },
 
   render: function render(h) {
-    var _generateRouteLink = this.generateRouteLink(),
-        tag = _generateRouteLink.tag,
-        data = _generateRouteLink.data;
+    var _this = this;
 
-    var children = [];
+    var data = {
+      'class': this.classes
+    };
 
-    if (tag === 'button') {
-      data.attrs.type = this.type;
+    if (this.hover) {
+      data.on = {
+        mouseover: function mouseover() {
+          return _this.isActive = true;
+        },
+        mouseout: function mouseout() {
+          return _this.isActive = false;
+        }
+      };
+    } else {
+      data.on = {
+        click: this.toggle
+      };
+
+      data.directives = [{
+        name: 'click-outside'
+      }];
     }
 
-    data.style = this.styles;
-
-    children.push(this.genContent(h));
-
-    if (this.loading) {
-      children.push(this.genLoader(h));
-    }
-
-    return h(tag, data, children);
+    return h('div', data, [this.genDial(), this.genContent()]);
   }
 });
 
@@ -1621,18 +1586,20 @@ var Avatar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Button__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ButtonToggle_vue__ = __webpack_require__(118);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ButtonToggle_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__ButtonToggle_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__FAB__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_helpers__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Button__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ButtonToggle_vue__ = __webpack_require__(118);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ButtonToggle_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__ButtonToggle_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__FAB__ = __webpack_require__(29);
+
 
 
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
-  Btn: __WEBPACK_IMPORTED_MODULE_0__Button__["a" /* default */],
-  BtnToggle: __WEBPACK_IMPORTED_MODULE_1__ButtonToggle_vue___default.a,
-  Fab: __WEBPACK_IMPORTED_MODULE_2__FAB__["a" /* default */]
+  Btn: __WEBPACK_IMPORTED_MODULE_1__Button__["a" /* default */],
+  BtnToggle: __WEBPACK_IMPORTED_MODULE_2__ButtonToggle_vue___default.a,
+  Fab: __WEBPACK_IMPORTED_MODULE_3__FAB__["a" /* default */]
 });
 
 /***/ }),
@@ -1707,8 +1674,7 @@ var CardMedia = {
       default: 'auto'
     },
     src: {
-      type: String,
-      required: true
+      type: String
     }
   },
 
@@ -1720,18 +1686,22 @@ var CardMedia = {
       }
     };
 
-    var background = h('div', {
-      'class': 'card__media__background',
-      style: {
-        background: 'url(' + this.src + ') center center'
-      }
-    });
+    var children = [];
 
-    var content = h('div', {
+    if (this.src) {
+      children.push(h('div', {
+        'class': 'card__media__background',
+        style: {
+          background: 'url(' + this.src + ') center center'
+        }
+      }));
+    }
+
+    children.push(h('div', {
       'class': 'card__media__content'
-    }, this.$slots.default);
+    }, this.$slots.default));
 
-    return h('div', data, [background, content]);
+    return h('div', data, children);
   }
 };
 
@@ -2669,7 +2639,7 @@ var Spacer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["
       var comparison = props.fa ? 'fa' : 'mdi';
       var text = children.pop().text;
 
-      if (text.indexOf(' ') === -1) data.staticClass += ' ' + comparison + '-' + text;else data.staticClass += ' ' + text.split(' ').join(comparison + '- ');
+      if (text.indexOf(' ') === -1) data.staticClass += ' ' + comparison + '-' + text;else data.staticClass += ' ' + comparison + '-' + text.split(' ').join('-');
     }
 
     if (props.disabled) {
@@ -5987,6 +5957,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   data: function data() {
     return {
       all: false,
+      searchLength: 0,
       defaultPagination: {
         page: 1,
         rowsPerPage: 5,
@@ -6105,7 +6076,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       return this.pagination || this.defaultPagination;
     },
     itemsLength: function itemsLength() {
-      return this.totalItems || this.items.length;
+      return this.totalItems || this.search && this.searchLength || this.items.length;
     },
     indeterminate: function indeterminate() {
       return this.selectAll !== false && this.someItems && !this.everyItem;
@@ -6140,6 +6111,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       if (hasSearch) {
         items = this.customFilter(items, this.search, this.filter);
+        this.searchLength = items.length;
       }
 
       items = this.customSort(items, this.computedPagination.sortBy, this.computedPagination.descending);
@@ -6165,7 +6137,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       if (!val) this.all = false;
     },
     search: function search() {
-      this.page = 1;
+      this.updatePagination({ page: 1 });
     },
     everyItem: function everyItem(val) {
       if (val) this.all = true;
@@ -7219,6 +7191,7 @@ var CarouselReverseTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 var DialogTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["b" /* createSimpleTransition */])('dialog-transition');
 var DialogBottomTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["b" /* createSimpleTransition */])('dialog-bottom-transition');
 var FadeTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["b" /* createSimpleTransition */])('fade-transition');
+var FabTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["b" /* createSimpleTransition */])('fab-transition');
 var MenuTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_helpers__["b" /* createSimpleTransition */])('menu-transition');
 
 /* harmony default export */ __webpack_exports__["a"] = ({
@@ -7227,6 +7200,7 @@ var MenuTransition = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_hel
   SlideYTransition: SlideYTransition,
   SlideYReverseTransition: SlideYReverseTransition,
   ScaleTransition: ScaleTransition,
+  FabTransition: FabTransition,
   FadeTransition: FadeTransition,
   TabTransition: TabTransition,
   TabReverseTransition: TabReverseTransition,
