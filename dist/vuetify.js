@@ -1535,9 +1535,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   methods: {
     genContent: function genContent() {
-      return this.$createElement('div', {
-        'class': 'fab__activator'
-      }, this.$slots.activator ? this.$slots.activator : this.$slots.default);
+      var _this = this;
+
+      var data = {
+        'class': 'fab__activator',
+        directives: [{
+          name: 'click-outside'
+        }]
+      };
+
+      if (this.hover) {
+        data.on = {
+          mouseover: function mouseover() {
+            return _this.isActive = true;
+          }
+        };
+      } else {
+        data.on = {
+          click: this.toggle
+        };
+      }
+
+      return this.$createElement('div', data, this.$slots.activator ? this.$slots.activator : this.$slots.default);
     },
     genDial: function genDial() {
       if (!this.$slots.activator) return;
@@ -1552,30 +1571,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
 
   render: function render(h) {
-    var _this = this;
-
     var data = {
       'class': this.classes
     };
-
-    if (this.hover) {
-      data.on = {
-        mouseover: function mouseover() {
-          return _this.isActive = true;
-        },
-        mouseout: function mouseout() {
-          return _this.isActive = false;
-        }
-      };
-    } else {
-      data.on = {
-        click: this.toggle
-      };
-
-      data.directives = [{
-        name: 'click-outside'
-      }];
-    }
 
     return h('div', data, [this.genDial(), this.genContent()]);
   }
