@@ -45,7 +45,7 @@
     overflow: hidden
     padding: $button-padding
     text-overflow: ellipsis
-    
+
     .icon
       color: inherit
 
@@ -55,10 +55,6 @@
   &--flat
     background-color: transparent !important
     box-shadow: none !important
-
-    &.btn--light
-      &:hover:after
-        background-color: $button-light-overlay
 
   &--raised
     will-change: box-shadow
@@ -75,7 +71,7 @@
     height: $button-height
     width: $button-height
     min-width: 0
-    
+
     .btn__content
       height: $button-height
       padding: 0
@@ -90,12 +86,18 @@
       &:after
         background-color: currentColor
         opacity: .12
-      
+
     &.btn--small
       width: $button-small-height
 
+      .btn__content
+        height: $button-small-height
+
     &.btn--large
       width: $button-large-height
+
+      .btn__content
+        height: $button-large-height
 
   &--floating
     border-radius: 50%
@@ -107,6 +109,23 @@
 
     &:after
       border-radius: 50%
+
+    .icon
+      &:not(:only-of-type):last-of-type
+        opacity: 0
+        position: absolute
+        transform: rotate(-45deg)
+
+    &.btn--active
+      .icon
+        &:not(:only-of-type)
+          &:first-of-type
+            opacity: 0
+            transform: rotate(45deg)
+          
+          &:last-of-type
+            opacity: 1
+            transform: none
 
     .icon
       height: $button-floating-icon-width
@@ -130,14 +149,58 @@
         font-size: $button-floating-large-icon-width
         height: $button-floating-large-icon-width
         width: $button-floating-large-icon-width
-    
+
   &--reverse
     .btn__content
       flex-direction: row-reverse
-    
+
     &.btn--column
       .btn__content
         flex-direction: column-reverse
+
+  &--fixed, &--absolute
+    margin: 0
+
+  &--absolute
+    position: absolute
+      
+  &--fixed
+    position: fixed
+    
+  &--hidden
+    transform: scale(0) rotate(-45deg)
+      
+  &--top
+    &:not(.btn--absolute)
+      top: $grid-gutters.sm
+
+    &.btn--absolute
+      top: -($button-floating-width / 2)
+      
+      &.btn--small
+        top: -($button-floating-small-width / 2)
+
+      &.btn--large
+        top: -($button-floating-large-width / 2)
+  
+  &--bottom
+    &:not(.btn--absolute)
+      bottom: $grid-gutters.sm
+      
+    &.btn--absolute
+      bottom: -($button-floating-width / 2)
+      
+      &.btn--small
+        bottom: -($button-floating-small-width / 2)
+
+      &.btn--large
+        bottom: -($button-floating-large-width / 2)
+    
+  &--left
+    left: $grid-gutters.md
+    
+  &--right
+    right: $grid-gutters.md
 
 /** Sizes */
 .btn

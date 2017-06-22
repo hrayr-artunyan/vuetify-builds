@@ -53,14 +53,14 @@ export default {
 
         classes.push('sortable')
         const icon = this.$createElement('v-icon', 'arrow_upward')
-        header.left && children.push(icon) || children.unshift(icon)
+        header.align && header.align === 'left' && children.push(icon) || children.unshift(icon)
 
         beingSorted = this.computedPagination.sortBy === header.value
         beingSorted && classes.push('active')
         beingSorted && this.computedPagination.descending && classes.push('desc') || classes.push('asc')
       }
 
-      header.left && classes.push('text-xs-left') || classes.push('text-xs-right')
+      header.align && classes.push(`text-xs-${header.align}`) || classes.push('text-xs-right')
 
       data.class = classes
 

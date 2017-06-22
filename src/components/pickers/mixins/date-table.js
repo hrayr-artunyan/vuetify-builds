@@ -37,8 +37,8 @@ export default {
     genTHead () {
       return this.$createElement('thead', {
 
-      }, this.genTR(this.week.map(o => {
-        return this.$createElement('th', o.substr(0, 1))
+      }, this.genTR(this.week.map((o, i) => {
+        return this.$createElement('th', Array.isArray(this.shortDays) && this.shortDays[i] || this.shortDays(o))
       })))
     },
     genTBody () {
@@ -99,7 +99,7 @@ export default {
       }
 
       children.length < 6 && children.push(this.genTR([
-        this.$createElement('td', { domProps: { innerHTML: '&nbsp;' }})
+        this.$createElement('td', { domProps: { innerHTML: '&nbsp;' } })
       ]))
 
       return this.$createElement('tbody', children)
