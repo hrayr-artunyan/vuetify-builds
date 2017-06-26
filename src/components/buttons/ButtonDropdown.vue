@@ -9,7 +9,7 @@
       v-bind:max-height="maxHeight"
       v-bind:offset-y="overflow || segmented || editable"
       v-model="isActive"
-      v-bind:close-on-click="!isActive"
+      v-bind:close-on-click="isActive"
       v-bind:open-on-click="!isActive"
       bottom
     )
@@ -17,10 +17,10 @@
         ref="input"
         v-bind:type="editable ? 'text' : 'button'"
         v-bind:label="label"
-        v-bind:light="light && !dark"
-        v-bind:dark="dark"
-        v-on:keyup.native.enter="updateValue(editableValue)"
-        v-on:focused="isActive = arguments[0]"
+        v-bind:light="light || !dark"
+        v-bind:dark="!light && dark"
+        v-on:keyup.native.enter="e => updateValue(e, editableValue)"
+        v-on:focus="isActive = arguments[0]"
         v-model="editableValue"
         slot="activator"
         single-line
@@ -29,18 +29,22 @@
       v-list
         v-list-item(v-for="(option, index) in options")
           v-list-tile(
-            v-bind:class="{ 'list__tile--active': inputValue === option }" 
-            v-on:click.native="updateValue(option)"
+            v-bind:class="{ 'list__tile--active': inputValue === option }"
+            v-on:click.native="e => updateValue(e, option)"
           )
             v-list-tile-action(v-if="option.action")
-              v-icon {{ option.action }}
+              v-icon(v-bind:light="light || !dark" v-bind:dark="!light && dark") {{ option.action }}
             v-list-tile-content(v-if="option.text")
               v-list-tile-title {{ option.text }}
 </template>
 
 <script>
+  import Themeable from '../../mixins/themeable'
+
   export default {
     name: 'button-dropdown',
+
+    mixins: [Themeable],
 
     data () {
       return {
@@ -51,12 +55,7 @@
     },
 
     props: {
-      dark: Boolean,
       editable: Boolean,
-      light: {
-        type: Boolean,
-        default: true
-      },
       options: {
         type: Array,
         default: () => []
@@ -82,8 +81,8 @@
           'btn-dropdown--editable': this.editable,
           'btn-dropdown--overflow': this.overflow || this.segmented || this.editable,
           'btn-dropdown--segmented': this.segmented,
-          'btn-dropdown--light': this.light && !this.dark,
-          'btn-dropdown--dark': this.dark
+          'btn-dropdown--light': this.light || !this.dark,
+          'btn-dropdown--dark': !this.light && this.dark
         }
       },
 
@@ -109,28 +108,17 @@
     mounted () {
       if (this.inputValue) {
         this.editableValue = this.inputValue.text
-      } 
+      }
     },
 
     watch: {
-      isActive () {
-        if (this.editable) {
-          if (!this.isActive) {
-            this.$refs.input.$el.querySelector('input').blur()
-          }
-        }
-      },
-
       inputValue () {
         this.$emit('input', this.inputValue)
       },
 
       value () {
-        if (typeof this.value === 'string') {
-          return (this.inputValue = { title: this.value })
-        }
-
-        this.inputValue = this.value
+        this.inputValue = typeof this.value === 'string' ? { text: this.value } : this.value
+        this.editableValue = this.inputValue.text
       }
     },
 
@@ -139,7 +127,12 @@
         this.isActive = active
       },
 
-      updateValue (obj) {
+      updateValue (e, obj) {
+        if (e.keyCode === 13) {
+          this.$refs.input.$el.querySelector('input').blur()
+          this.isActive = false
+        }
+
         if (typeof obj === 'string') {
           obj = { text: obj }
         }

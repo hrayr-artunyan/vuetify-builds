@@ -1,9 +1,10 @@
 import Toggleable from '../../mixins/toggleable'
+import Contextualable from '../../mixins/contextualable'
 
 export default {
   name: 'snackbar',
 
-  mixins: [Toggleable],
+  mixins: [Contextualable, Toggleable],
 
   data () {
     return {
@@ -12,6 +13,7 @@ export default {
   },
 
   props: {
+    absolute: Boolean,
     bottom: Boolean,
     left: Boolean,
     multiLine: Boolean,
@@ -20,7 +22,8 @@ export default {
     timeout: {
       type: Number,
       default: 6000
-    }
+    },
+    vertical: Boolean
   },
 
   computed: {
@@ -28,11 +31,19 @@ export default {
       return {
         'snack': true,
         'snack--active': this.isActive,
+        'snack--absolute': this.absolute,
         'snack--bottom': this.bottom || !this.top,
         'snack--left': this.left,
         'snack--right': this.right,
         'snack--top': this.top,
-        'snack--multi-line': this.multiLine
+        'snack--multi-line': this.multiLine && !this.vertical,
+        'snack--vertical': this.vertical,
+        'primary': this.primary,
+        'secondary': this.secondary,
+        'success': this.success,
+        'info': this.info,
+        'warning': this.warning,
+        'error': this.error
       }
     },
     computedTransition () {
@@ -42,9 +53,9 @@ export default {
 
   watch: {
     isActive () {
-      clearTimeout(this.timeout)
+      clearTimeout(this.activeTimeout)
 
-      if (this.isActive) {
+      if (this.isActive && this.timeout) {
         this.activeTimeout = setTimeout(() => (this.isActive = false), this.timeout)
       }
     }

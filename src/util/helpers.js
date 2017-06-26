@@ -2,10 +2,10 @@ export function createSimpleFunctional (c, el = 'div') {
   return {
     functional: true,
 
-    render: (h, context) => {
-      context.data.staticClass = context.data.staticClass ? `${c} ${context.data.staticClass}` : c
+    render: (h, { data, children }) => {
+      data.staticClass = data.staticClass ? `${c} ${data.staticClass}` : c
 
-      return h(el, context.data, context.children)
+      return h(el, data, children)
     }
   }
 }
@@ -14,18 +14,18 @@ export function createSimpleTransition (name) {
   return {
     functional: true,
 
-    render (createElement, context) {
+    render (h, context) {
       const origin = (context.data.attrs || context.data.props || {}).origin || 'top center 0'
-      const data = context.data || {}
+      context.data = context.data || {}
+      context.data.props = { name }
+      context.data.on = context.data.on || {}
 
-      data.props = { name }
-      data.on = data.on || {}
-      data.on.beforeEnter = (el) => {
+      context.data.on.beforeEnter = el => {
         el.style.transformOrigin = origin
         el.style.webkitTransformOrigin = origin
       }
 
-      return createElement('transition', data, context.children)
+      return h('transition', context.data, context.children)
     }
   }
 }
@@ -43,13 +43,8 @@ export function closestParentTag (tag) {
   let parent = this.$parent
 
   while (parent) {
-    if (!parent.$options._componentTag) {
-      return null
-    }
-
-    if (parent.$options._componentTag === tag) {
-      return parent
-    }
+    if (!parent.$options._componentTag) return null
+    if (parent.$options._componentTag === tag) return parent
 
     parent = parent.$parent
   }
@@ -102,3 +97,19 @@ export function debounce (func, threshold, execAsap) {
   }
 }
 
+export function getObjectValueByPath (obj, path) {
+  // credit: http://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-with-string-key#comment55278413_6491621
+  if (!path || path.constructor !== String) return
+  path = path.replace(/\[(\w+)\]/g, '.$1') // convert indexes to properties
+  path = path.replace(/^\./, '')           // strip a leading dot
+  let a = path.split('.')
+  for (var i = 0, n = a.length; i < n; ++i) {
+    var k = a[i]
+    if (obj.constructor === Object && k in obj) {
+      obj = obj[k]
+    } else {
+      return
+    }
+  }
+  return obj
+}

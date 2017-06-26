@@ -7,7 +7,33 @@ export default {
 
   data () {
     return {
-      hasFocused: false
+      hasFocused: false,
+      inputHeight: null
+    }
+  },
+
+  props: {
+    autofocus: Boolean,
+    autoGrow: Boolean,
+    counter: Boolean,
+    fullWidth: Boolean,
+    id: String,
+    name: String,
+    maxlength: [Number, String],
+    max: [Number, String],
+    min: [Number, String],
+    step: [Number, String],
+    multiLine: Boolean,
+    prefix: String,
+    readonly: Boolean,
+    rows: {
+      default: 5
+    },
+    singleLine: Boolean,
+    suffix: String,
+    type: {
+      type: String,
+      default: 'text'
     }
   },
 
@@ -21,19 +47,28 @@ export default {
       }
     },
     hasError () {
-      return this.errors.length !== 0 ||
+      return this.errors.length > 0 ||
         !this.counterIsValid() ||
-        !this.validateIsValid()
+        !this.validateIsValid() ||
+        this.error
     },
     count () {
       const inputLength = (this.inputValue && this.inputValue.toString() || '').length
       let min = inputLength
 
-      if (this.min !== 0 && inputLength < this.min) {
-        min = this.min
+      if (this.counterMin !== 0 && inputLength < this.counterMin) {
+        min = this.counterMin
       }
 
-      return `${min} / ${this.max}`
+      return `${min} / ${this.counterMax}`
+    },
+    counterMin () {
+      const parsedMin = Number.parseInt(this.min, 10)
+      return Number.isNaN(parsedMin) ? 0 : parsedMin
+    },
+    counterMax () {
+      const parsedMax = Number.parseInt(this.max, 10)
+      return Number.isNaN(parsedMax) ? 25 : parsedMax
     },
     inputValue: {
       get () {
@@ -54,103 +89,133 @@ export default {
 
         this.lazyValue = val
       }
-    }
-  },
-
-  props: {
-    autocomplete: Boolean,
-    counter: Boolean,
-    fullWidth: Boolean,
-    min: {
-      type: [Number, String],
-      default: 0
     },
-    max: {
-      type: [Number, String],
-      default: 25
-    },
-    multiLine: Boolean,
-    singleLine: Boolean,
-    type: {
-      type: String,
-      default: 'text'
+    isDirty () {
+      return this.lazyValue !== null &&
+        typeof this.lazyValue !== 'undefined' &&
+        this.lazyValue.toString().length > 0
     }
   },
 
   watch: {
-    focused () {
-      this.$emit('focused', this.focused)
+    focused (val) {
       this.hasFocused = true
 
-      if (!this.focused) {
-        this.$emit('change', this.lazyValue)
-      }
+      !val && this.$emit('change', this.lazyValue)
     },
     value () {
       this.lazyValue = this.value
       this.validate()
+      this.multiLine && this.autoGrow && this.calculateInputHeight()
     }
   },
 
+  mounted () {
+    this.$vuetify.load(() => {
+      this.multiLine && this.autoGrow && this.calculateInputHeight()
+      this.autofocus && this.focus()
+    })
+  },
+
   methods: {
-    isDirty () {
-      return this.lazyValue
+    calculateInputHeight () {
+      const height = this.$refs.input.scrollHeight
+      const minHeight = this.rows * 24
+      this.inputHeight = height < minHeight ? minHeight : height
     },
-    blur () {
+    onInput (e) {
+      this.inputValue = e.target.value
+      this.multiLine && this.autoGrow && this.calculateInputHeight()
+    },
+    blur (e) {
       this.validate()
       this.$nextTick(() => (this.focused = false))
+      this.$emit('blur', e)
     },
-    genCounter (h) {
-      return h('div', {
+    focus (e) {
+      this.focused = true
+      this.$refs.input.focus()
+      this.$emit('focus', e)
+    },
+    genCounter () {
+      return this.$createElement('div', {
         'class': {
           'input-group__counter': true,
           'input-group__counter--error': !this.counterIsValid()
         }
       }, this.count)
     },
-    genInput (h) {
+    genInput () {
       const tag = this.multiLine ? 'textarea' : 'input'
 
-      const inputData = {
+      const data = {
+        style: {
+          'height': this.inputHeight && `${this.inputHeight}px`
+        },
         domProps: {
-          autocomplete: this.autocomplete,
           disabled: this.disabled,
           required: this.required,
-          value: this.lazyValue
+          value: this.lazyValue,
+          autofucus: this.autofocus
+        },
+        attrs: {
+          tabindex: this.tabindex,
+          readonly: this.readonly
         },
         on: {
           blur: this.blur,
-          input: e => (this.inputValue = e.target.value),
-          focus: () => (this.focused = true)
+          input: this.onInput,
+          focus: this.focus
         },
         ref: 'input'
       }
 
-      if (this.multiLine) {
-        inputData.domProps.rows = 5
-      } else {
-        inputData.domProps.type = this.type
+      if (this.placeholder) data.domProps.placeholder = this.placeholder
+      if (this.autocomplete) data.domProps.autocomplete = true
+      if (this.name) data.attrs.name = this.name
+      if (this.maxlength) data.attrs.maxlength = this.maxlength
+      if (this.id) data.domProps.id = this.id
+      if (this.step) data.attrs.step = this.step
+      if (!this.counter) {
+        if (this.max) data.attrs.max = this.max
+        if (this.min) data.attrs.min = this.min
       }
 
-      return h(tag, inputData)
+      if (this.multiLine) {
+        data.domProps.rows = this.rows
+      } else {
+        data.domProps.type = this.type
+      }
+
+      const children = [this.$createElement(tag, data)]
+
+      this.prefix && children.unshift(this.genFix('prefix'))
+      this.suffix && children.push(this.genFix('suffix'))
+
+      return children
+    },
+    genFix (type) {
+      return this.$createElement('span', {
+        'class': `input-group--text-field__${type}`
+      }, this[type])
     },
     counterIsValid: function counterIsValid () {
       const val = (this.inputValue && this.inputValue.toString() || '')
+
       return (!this.counter ||
-        !this.inputValue.toString() ||
-        (val.length >= this.min && val.length <= this.max)
+        (val.length >= this.counterMin && val.length <= this.counterMax)
       )
     },
     validateIsValid () {
       return (!this.required ||
         (this.required &&
-          this.inputValue) ||
+          this.isDirty) ||
         !this.hasFocused ||
         (this.hasFocused && this.focused))
     }
   },
 
-  render (h) {
-    return this.genInputGroup(h, this.genInput(h))
+  render () {
+    return this.genInputGroup(this.genInput(), { attrs: { tabindex: -1 }})
   }
 }

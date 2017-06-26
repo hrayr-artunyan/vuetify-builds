@@ -10,7 +10,7 @@ export default {
 
   props: {
     dense: Boolean,
-    subHeader: Boolean,
+    subheader: Boolean,
     threeLine: Boolean,
     twoLine: Boolean
   },
@@ -22,26 +22,18 @@ export default {
         'list--two-line': this.twoLine,
         'list--dense': this.dense,
         'list--three-line': this.threeLine,
-        'list--subheader': this.subHeader
+        'list--subheader': this.subheader
       }
     }
   },
 
   watch: {
     uid () {
-      this.groups.forEach(i => i.toggle(this.uid))
+      this.$children.filter(i => i.$options._componentTag === 'v-list-group').forEach(i => i.toggle(this.uid))
     }
   },
 
-  mounted () {
-    this.init()
-  },
-
   methods: {
-    init () {
-      this.groups = this.$children.filter(i => i.$options._componentTag === 'v-list-group')
-    },
-
     listClick (uid, force) {
       if (force) {
         this.uid = uid
