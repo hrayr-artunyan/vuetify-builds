@@ -12,9 +12,10 @@ export default {
   mounted () {
     this.$vuetify.load(() => {
       this.app = document.querySelector('[data-app]')
-      this.app &&
-        this.app.appendChild(this.$refs.content) ||
-        console.warn('Application is missing <v-app> component')
+
+      if (!this.app) return console.warn('Application is missing <v-app> component')
+
+      this.app.prepend(this.$refs.content)
     })
   },
 

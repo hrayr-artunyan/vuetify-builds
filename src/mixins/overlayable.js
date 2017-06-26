@@ -32,7 +32,15 @@ export default {
       if (this.absolute) overlay.className += ' overlay--absolute'
 
       this.hideScroll()
-      const app = this.$el.closest('[data-app]')
+
+      let app
+      // #820 Instead of requiring polyfill, do conditional
+      if (window.Element && !Element.prototype.closest) {
+        app = document.querySelector('[data-app]')
+      } else {
+        app = this.$el.closest('[data-app]')
+      }
+
       app &&
         app.appendChild(overlay) ||
         console.warn('Application is missing <v-app> component')
@@ -40,10 +48,10 @@ export default {
       this.isTransitioning = true
       addOnceEventListener(overlay, 'transitionend', () => (this.isTransitioning = false))
 
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         overlay.className += ' overlay--active'
         this.overlay = overlay
-      })
+      }, 0)
 
       return true
     },
@@ -57,6 +65,7 @@ export default {
         this.isTransitioning = false
       })
 
+      this.isTransitioning = true
       this.overlay.className = this.overlay.className.replace('overlay--active', '')
     },
     hideScroll () {

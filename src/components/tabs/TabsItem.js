@@ -1,4 +1,4 @@
-import GenerateRouteLink from '../../mixins/route-link'
+import GenerateRouteLink from '~mixins/route-link'
 
 export default {
   name: 'tabs-item',
@@ -69,6 +69,7 @@ export default {
 
     toggle (action) {
       this.isActive = this.action === action
+
       this.$nextTick(() => {
         this.isActive && this.slider(this.$el)
       })

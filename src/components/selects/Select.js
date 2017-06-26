@@ -1,4 +1,4 @@
-import Input from '../../mixins/input'
+import Input from '~mixins/input'
 import Generators from './mixins/generators'
 import Autocomplete from './mixins/autocomplete'
 
@@ -63,6 +63,7 @@ export default {
     classes () {
       return {
         'input-group--text-field input-group--select': true,
+        'input-group--auto': this.auto,
         'input-group--overflow': this.overflow,
         'input-group--segmented': this.segmented,
         'input-group--editable': this.editable,
@@ -72,6 +73,14 @@ export default {
         'input-group--chips': this.chips,
         'input-group--multiple': this.multiple
       }
+    },
+    computedContentClass () {
+      const children = [
+        this.auto ? 'menu__content--auto' : '',
+        this.isDropdown ? 'menu__content--dropdown' : ''
+      ]
+
+      return children.join(' ')
     },
     filteredItems () {
       const items = this.autocomplete && this.searchValue
@@ -178,6 +187,8 @@ export default {
           this.$refs.input.focus()
         })
       }
+
+      this.$emit('change', this.inputValue)
     }
   },
 
