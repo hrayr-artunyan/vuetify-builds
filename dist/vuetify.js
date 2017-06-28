@@ -686,12 +686,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 "use strict";
 /* harmony default export */ __webpack_exports__["a"] = ({
-  data: function data() {
-    return {
-      app: null
-    };
-  },
-
   props: {
     contentClass: {
       default: ''
@@ -702,15 +696,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var _this = this;
 
     this.$vuetify.load(function () {
-      _this.app = document.querySelector('[data-app]');
-
-      if (!_this.app) return console.warn('Application is missing <v-app> component');
-
-      _this.app.prepend(_this.$refs.content);
+      document.body.prepend(_this.$refs.content);
     });
   },
   beforeDestroy: function beforeDestroy() {
-    this.app && this.app.contains(this.$refs.content) && this.app.removeChild(this.$refs.content);
+    document.body.removeChild(this.$refs.content);
   }
 });
 
@@ -757,15 +747,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       this.hideScroll();
 
-      var app = void 0;
-      // #820 Instead of requiring polyfill, do conditional
-      if (window.Element && !Element.prototype.closest) {
-        app = document.querySelector('[data-app]');
+      if (this.absolute) {
+        this.$el.parentNode.prepend(overlay);
       } else {
-        app = this.$el.closest('[data-app]');
+        document.body.prepend(overlay);
       }
-
-      app && app.appendChild(overlay) || console.warn('Application is missing <v-app> component');
 
       this.isTransitioning = true;
       __WEBPACK_IMPORTED_MODULE_0__util_helpers__["a" /* addOnceEventListener */](overlay, 'transitionend', function () {
@@ -871,9 +857,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
 
   props: {
-    inputValue: [Array, Boolean, String],
-    falseValue: String,
-    trueValue: String
+    inputValue: null,
+    falseValue: null,
+    trueValue: null
   },
 
   computed: {
@@ -1187,7 +1173,8 @@ if (typeof window !== 'undefined' && window.Vue) {
     id: {
       type: String,
       default: 'app'
-    }
+    },
+    standalone: Boolean
   },
 
   render: function render(h, _ref) {
@@ -1197,14 +1184,13 @@ if (typeof window !== 'undefined' && window.Vue) {
 
     data.staticClass = data.staticClass ? 'application ' + data.staticClass + ' ' : 'application ';
 
-    var classes = {
-      'application--dark': props.dark,
-      'application--light': props.light && !props.dark
-    };
-
-    data.staticClass += Object.keys(classes).filter(function (k) {
-      return classes[k];
-    }).join(' ');
+    if (typeof document !== 'undefined' && !props.standalone) {
+      document.body.classList.remove('application--dark');
+      document.body.classList.remove('application--light');
+      document.body.classList.add('application--' + (props.dark ? 'dark' : 'light'));
+    } else {
+      data.staticClass += 'application--' + (props.dark ? 'dark' : 'light');
+    }
 
     var toolbar = children.find(function (c) {
       return c.tag === 'nav';
@@ -3384,12 +3370,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   mixins: [__WEBPACK_IMPORTED_MODULE_0__mixins_bootable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__mixins_detachable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_2__mixins_overlayable__["a" /* default */], __WEBPACK_IMPORTED_MODULE_3__mixins_toggleable__["a" /* default */]],
 
-  data: function data() {
-    return {
-      app: null
-    };
-  },
-
   props: {
     disabled: Boolean,
     persistent: Boolean,
@@ -5150,15 +5130,15 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       if (!val) this.listIndex = -1;
     },
     listIndex: function listIndex(next, prev) {
-      // For infinite scroll, re-evaluate children
-      next === this.tiles.length - 1 && this.getTiles();
+      // For infinite scroll and autocomplete, re-evaluate children
+      this.getTiles();
 
-      if (next !== -1) {
+      if (next in this.tiles) {
         this.tiles[next].classList.add('list__tile--highlighted');
         this.$refs.content.scrollTop = next * 48;
       }
 
-      prev !== -1 && this.tiles[prev].classList.remove('list__tile--highlighted');
+      prev in this.tiles && this.tiles[prev].classList.remove('list__tile--highlighted');
     }
   },
 
@@ -5167,7 +5147,9 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       [40, 38, 13, 32].includes(e.keyCode) && e.preventDefault();
 
       if (this.listIndex === -1) this.setActiveListIndex();
-      if ([27, 9].includes(e.keyCode)) this.isActive = false;else if (e.keyCode === 40 && this.listIndex < this.tiles.length - 1) this.listIndex++;else if (e.keyCode === 38 && this.listIndex > 0) this.listIndex--;else if (e.keyCode === 13 && this.listIndex !== -1) this.tiles[this.listIndex].click();else if ([13, 32].includes(e.keyCode)) this.isActive = true;
+      if ([27, 9].includes(e.keyCode)) return this.isActive = false;else if (!this.isActive && [13, 32].includes(e.keyCode)) return this.isActive = true;
+
+      if (e.keyCode === 40 && this.listIndex < this.tiles.length - 1) this.listIndex++;else if (e.keyCode === 38 && this.listIndex > 0) this.listIndex--;else if (e.keyCode === 13 && this.listIndex !== -1) this.tiles[this.listIndex].click();
     },
     getTiles: function getTiles() {
       this.tiles = this.$refs.content.querySelectorAll('.list__tile');
@@ -6390,6 +6372,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       this.$nextTick(function () {
         _this2.content && _this2.content.addEventListener('scroll', _this2.onScroll, false);
       });
+    },
+    searchValue: function searchValue() {
+      this.$refs.menu.listIndex = -1;
     }
   },
 
@@ -6408,12 +6393,13 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       var _this3 = this;
 
       this.$nextTick(function () {
-        return _this3.focused = false;
+        _this3.focused = false;
+        _this3.$el.blur();
       });
     },
     focus: function focus() {
       this.focused = true;
-      this.autocomplete && this.$refs.input.focus();
+      this.autocomplete && this.$refs.input && this.$refs.input.focus();
     },
     getText: function getText(item) {
       return item === Object(item) ? item[this.itemText] : item;
@@ -6456,7 +6442,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       if (this.autocomplete) {
         this.$nextTick(function () {
           _this5.searchValue = null;
-          _this5.$refs.input.focus();
+          _this5.$refs.input && _this5.$refs.input.focus();
         });
       }
 
@@ -6524,17 +6510,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         input = [this.$createElement('input', {
           'class': 'input-group--select__autocomplete',
           domProps: { value: this.searchValue },
-          on: {
-            input: function input(e) {
+          on: { input: function input(e) {
               return _this2.searchValue = e.target.value;
-            },
-            keyup: function keyup(e) {
-              if (e.keyCode === 27) {
-                _this2.isActive = false;
-                e.target.blur();
-              }
-            }
-          },
+            } },
           ref: 'input',
           key: 'input'
         })];
@@ -6824,7 +6802,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     __WEBPACK_IMPORTED_MODULE_0_vue__["a" /* default */].nextTick(function () {
       return _this.inputWidth = _this.calculateWidth(_this.inputValue);
     });
-    this.app = document.querySelector('[data-app]');
+
+    // Without a v-app, iOS does not work with body selectors
+    this.app = document.querySelector('[data-app]') || console.warn('The v-slider component requires the present of v-app or a non-body wrapping element with the [data-app] attribute.');
   },
 
 
