@@ -792,12 +792,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     showScroll: function showScroll() {
       document.body.removeAttribute('style');
+
+      if (!this.overlayOffset) return;
       document.body.scrollTop = this.overlayOffset;
       document.documentElement.scrollTop = this.overlayOffset;
     }
   }
 });
-'filehash 4JnuyTQRdp1sBrsslw0ZihdnB4M=';
+'filehash qvPB/RQLgJdTX0Z5DcSwFhBbvjs=';
 
 /***/ }),
 /* 12 */
@@ -5343,7 +5345,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       }
     },
     permanent: function permanent(val) {
-      val && this.$emit('input', val);
+      this.$emit('input', val);
     },
     value: function value(val) {
       if (this.permanent) return;
@@ -5409,7 +5411,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
     return h('aside', data, [this.$slots.default]);
   }
 });
-'filehash Yl/lZy8x+qq4f391de+4sQFTBGA=';
+'filehash BoV1JisdrXinP/zH0Qy2RrJxiuM=';
 
 /***/ }),
 /* 85 */
