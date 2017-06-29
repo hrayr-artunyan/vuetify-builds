@@ -663,6 +663,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   props: {
     actions: Boolean,
+    autosave: Boolean,
     landscape: Boolean,
     noTitle: Boolean,
     scrollable: Boolean,
@@ -687,7 +688,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 });
-"filehash s8fjJjs/KuS5lrn3HmzWwujJNz8=";
+"filehash zeHflCxfI9HWK+gKwwip/ibmY7w=";
 
 /***/ }),
 /* 10 */
@@ -2762,7 +2763,7 @@ var defaultDateFormat = function defaultDateFormat(val) {
 
               _this3.inputDate = _this3.tableYear + '-' + tableMonth + '-' + day + 'T12:00:00';
               _this3.$nextTick(function () {
-                return !_this3.actions && _this3.save();
+                return _this3.autosave && _this3.save();
               });
             }
           }
@@ -2800,7 +2801,7 @@ var defaultDateFormat = function defaultDateFormat(val) {
     }
   }
 });
-'filehash z0nSP2STX1kbchshAzaiiQLAxl4=';
+'filehash wjnXgZt0tHcIN1kVsI3xFIERcas=';
 
 /***/ }),
 /* 50 */
@@ -3343,7 +3344,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     },
     onMouseUp: function onMouseUp() {
       this.isDragging = false;
-      !this.selectingHour && !this.actions && this.save();
+      !this.selectingHour && this.autosave && this.save();
       if (this.hasChanged) {
         this.selectingHour = false;
         this.hasChanged = false;
@@ -3378,7 +3379,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     }
   }
 });
-'filehash e6zYccD0EIsS5Yz/jUudrtzHdLU=';
+'filehash GJs28HaIvUaLUCMhMvPaQaWCX/4=';
 
 /***/ }),
 /* 54 */
@@ -3418,6 +3419,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     disabled: Boolean,
     persistent: Boolean,
     fullscreen: Boolean,
+    fullWidth: Boolean,
     lazy: Boolean,
     origin: {
       type: String,
@@ -3511,11 +3513,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }, [dialog]));
 
     return h('div', {
-      'class': 'dialog__container'
+      'class': 'dialog__container',
+      style: {
+        display: this.fullWidth ? 'block' : 'inline-block'
+      }
     }, children);
   }
 });
-'filehash fko5gAIQhHxuDmQ6hRsmxiCH9Ic=';
+'filehash YbI00+lk8HgLcEtus66fN0WaFTs=';
 
 /***/ }),
 /* 56 */
@@ -4743,6 +4748,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
     left: Boolean,
     bottom: Boolean,
     right: Boolean,
+    fullWidth: Boolean,
     auto: Boolean,
     offsetX: Boolean,
     offsetY: Boolean,
@@ -4810,20 +4816,25 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       type: Boolean,
       default: false
     },
-    minWidth: {
-      type: Number,
-      default: null
-    }
+    maxWidth: [Number, String],
+    minWidth: [Number, String]
   },
 
   computed: {
     calculatedMinWidth: function calculatedMinWidth() {
-      return this.minWidth !== null ? this.minWidth : this.dimensions.activator.width + this.nudgeWidth + (this.auto ? 16 : 0);
+      var minWidth = parseInt(this.minWidth) || this.dimensions.activator.width + this.nudgeWidth + (this.auto ? 16 : 0);
+
+      if (!this.maxWidth) return minWidth;
+
+      var maxWidth = parseInt(this.maxWidth);
+
+      return maxWidth < minWidth ? maxWidth : minWidth;
     },
     styles: function styles() {
       return {
         maxHeight: this.auto ? '200px' : isNaN(this.maxHeight) ? this.maxHeight : this.maxHeight + 'px',
         minWidth: this.calculatedMinWidth + 'px',
+        maxWidth: parseInt(this.maxWidth) + 'px',
         top: this.calcTop() + 'px',
         left: this.calcLeft() + 'px'
       };
@@ -4904,6 +4915,9 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
 
     var data = {
       'class': 'menu',
+      style: {
+        display: this.fullWidth ? 'block' : 'inline-block'
+      },
       directives: directives,
       on: {
         keydown: function keydown(e) {
@@ -4915,7 +4929,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
     return h('div', data, [this.genActivator(), this.genTransition()]);
   }
 });
-'filehash GwX99IVPvDIMekBc4UG5kq3GSjE=';
+'filehash 4SbqMtBn04hvqPVX8nVjKQaskVI=';
 
 /***/ }),
 /* 78 */
