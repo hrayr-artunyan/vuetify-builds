@@ -1,5 +1,3 @@
-import { addOnceEventListener } from '../util/helpers'
-
 export default {
   data () {
     return {
@@ -33,9 +31,10 @@ export default {
       this.hideScroll()
 
       if (this.absolute) {
-        this.$el.parentNode.prepend(overlay)
+        // Required for IE11
+        this.$el.parentNode.insertBefore(overlay, this.$el.parentNode.firstChild)
       } else {
-        document.body.appendChild(overlay)
+        document.querySelector('[data-app]').appendChild(overlay)
       }
 
       setTimeout(() => {
@@ -46,31 +45,37 @@ export default {
       return true
     },
     removeOverlay () {
-      this.showScroll()
-      if (!this.overlay) return
-
-      addOnceEventListener(this.overlay, 'transitionend', () => {
-        this.overlay && this.overlay.remove()
-        this.overlay = null
-      })
+      if (!this.overlay) {
+        return this.showScroll()
+      }
 
       this.overlay.className = this.overlay.className.replace('overlay--active', '')
+
+      requestAnimationFrame(() => {
+        // IE11 Fix
+        try {
+          this.overlay.parentNode.removeChild(this.overlay)
+          this.overlay = null
+          this.showScroll()
+        } catch (e) {}
+      })
     },
     hideScroll () {
       // Check documentElement first for IE11
-      this.overlayOffset = document.documentElement &&
-        document.documentElement.scrollTop ||
-        document.body.scrollTop
+      // this.overlayOffset = document.documentElement &&
+      //   document.documentElement.scrollTop ||
+      //   document.body.scrollTop
 
-      document.body.style.top = `-${this.overlayOffset}px`
-      document.body.style.position = 'fixed'
+      // document.body.style.top = `-${this.overlayOffset}px`
+      // document.body.style.position = 'fixed'
+      document.documentElement.style.overflow = 'hidden'
     },
     showScroll () {
-      document.body.removeAttribute('style')
+      document.documentElement.removeAttribute('style')
 
-      if (!this.overlayOffset) return
-      document.body.scrollTop = this.overlayOffset
-      document.documentElement.scrollTop = this.overlayOffset
+      // if (!this.overlayOffset) return
+      // document.body.scrollTop = this.overlayOffset
+      // document.documentElement.scrollTop = this.overlayOffset
     }
   }
 }

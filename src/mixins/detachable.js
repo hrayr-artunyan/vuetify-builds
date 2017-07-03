@@ -7,11 +7,20 @@ export default {
 
   mounted () {
     this.$vuetify.load(() => {
-      document.body.insertBefore(this.$refs.content, document.body.firstChild)
+      const app = document.querySelector('[data-app]')
+      app.insertBefore(
+        this.$refs.content,
+        app.firstChild
+      )
     })
   },
 
   beforeDestroy () {
-    document.body.removeChild(this.$refs.content)
+    if (!this.$refs.content) return
+
+    // IE11 Fix
+    try {
+      this.$refs.content.parentNode.removeChild(this.$refs.content)
+    } catch (e) {}
   }
 }

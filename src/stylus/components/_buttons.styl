@@ -40,11 +40,12 @@
     height: 100%
     flex: 1 0 auto
     justify-content: center
-    transition: $primary-transition
-    white-space: nowrap
+    margin: 0 auto
     overflow: hidden
     padding: $button-padding
     text-overflow: ellipsis
+    transition: $primary-transition
+    white-space: nowrap
 
 
 /** Types */
@@ -108,6 +109,9 @@
     .btn__content
       flex: 0 0 auto
       padding: 0
+      
+      .icon
+        color: inherit
 
     &:after
       border-radius: 50%
@@ -173,7 +177,7 @@
       
   &--top
     &:not(.btn--absolute)
-      top: $grid-gutters.sm
+      top: $grid-gutters.lg
 
     &.btn--absolute
       top: -($button-floating-width / 2)
@@ -186,7 +190,7 @@
   
   &--bottom
     &:not(.btn--absolute)
-      bottom: $grid-gutters.sm
+      bottom: $grid-gutters.lg
       
     &.btn--absolute
       bottom: -($button-floating-width / 2)
@@ -198,10 +202,10 @@
         bottom: -($button-floating-large-width / 2)
     
   &--left
-    left: $grid-gutters.md
+    left: $grid-gutters.lg
     
   &--right
-    right: $grid-gutters.md
+    right: $grid-gutters.lg
 
 /** Sizes */
 .btn
