@@ -4842,6 +4842,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
 
   methods: {
     activate: function activate() {
+      if (typeof window === 'undefined') return;
       this.insideContent = true;
       this.initWindow();
       this.getTiles();
@@ -5058,10 +5059,7 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       if (this.nudgeLeft) left += this.nudgeLeft;
       if (this.nudgeRight) left -= this.nudgeRight;
 
-      var totalWidth = left + this.calculatedMinWidth - this.window.innerWidth;
-
-      if (totalWidth > 0) left -= totalWidth + 24; // give a little extra space
-      return left;
+      return this.calcXOverflow(left);
     },
     calcTop: function calcTop(force) {
       if (this.auto && !force) return this.calcTopAuto();
@@ -5074,15 +5072,40 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       if (this.nudgeTop) top -= this.nudgeTop;
       if (this.nudgeBottom) top += this.nudgeBottom;
 
-      return top + this.window.pageYOffset;
+      return this.calcYOverflow(top) + this.window.pageYOffset;
+    },
+    calcXOverflow: function calcXOverflow(left) {
+      var maxWidth = Math.max(this.dimensions.content.width, this.calculatedMinWidth, parseInt(this.maxWidth));
+      var totalWidth = left + maxWidth;
+      var availableWidth = totalWidth - this.window.innerWidth;
+
+      if ((!this.left || this.right) && availableWidth > 0) {
+        left = this.window.innerWidth - maxWidth - (this.window.innerWidth > 1024 ? 30 : 12) // Account for scrollbar
+        ;
+      } else if (this.left && left < 0) left = 12;
+
+      return left;
+    },
+    calcYOverflow: function calcYOverflow(top) {
+      var totalHeight = top + this.dimensions.content.height;
+
+      if (this.top && top < 0) top = 12;else if ((!this.top || this.bottom) && this.window.innerHeight < totalHeight) {
+        top = this.window.innerHeight - this.dimensions.content.height - 12;
+      }
+
+      return top;
     },
     sneakPeek: function sneakPeek(cb) {
-      var el = this.$refs.content;
-      var currentDisplay = el.style.display;
+      var _this = this;
 
-      el.style.display = 'inline-block';
-      cb();
-      el.style.display = currentDisplay;
+      requestAnimationFrame(function () {
+        var el = _this.$refs.content;
+        var currentDisplay = el.style.display;
+
+        el.style.display = 'inline-block';
+        cb();
+        el.style.display = currentDisplay;
+      });
     },
     absolutePosition: function absolutePosition() {
       return {
@@ -5097,12 +5120,12 @@ var ListTileSubTitle = __WEBPACK_IMPORTED_MODULE_0__util_helpers__["c" /* create
       };
     },
     updateDimensions: function updateDimensions() {
-      var _this = this;
+      var _this2 = this;
 
       this.sneakPeek(function () {
-        _this.dimensions = {
-          activator: !_this.hasActivator || _this.positionAbsolutely ? _this.absolutePosition() : _this.measure(_this.getActivator()),
-          content: _this.measure(_this.$refs.content)
+        _this2.dimensions = {
+          activator: !_this2.hasActivator || _this2.positionAbsolutely ? _this2.absolutePosition() : _this2.measure(_this2.getActivator()),
+          content: _this2.measure(_this2.$refs.content)
         };
       });
     }
@@ -6381,7 +6404,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     selectedItems: function selectedItems() {
       var _this = this;
 
-      if (this.inputValue === null) return [];
+      if (this.inputValue === null || typeof this.inputValue === 'undefined') return [];
 
       return this.items.filter(function (i) {
         if (!_this.multiple) {
@@ -6403,7 +6426,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     value: function value(val) {
       this.inputValue = val;
       this.validate();
-      this.autocomplete && this.$nextTick(this.$refs.menu.updateDimensions);
+      if (this.autocomplete || this.editable) this.$nextTick(this.$refs.menu.updateDimensions);
     },
     isActive: function isActive(val) {
       this.isBooted = true;
@@ -6443,8 +6466,25 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       });
     },
     focus: function focus() {
+      var _this4 = this;
+
       this.focused = true;
-      this.autocomplete && this.$refs.input && this.$refs.input.focus();
+      this.$refs.input && (this.autocomplete || this.editable) && this.$refs.input.focus();
+
+      if (this.editable && this.inputValue !== null && typeof this.inputValue !== 'undefined') {
+        this.$nextTick(function () {
+          return _this4.$refs.input.value = _this4.getValue(_this4.inputValue);
+        });
+      }
+    },
+    genLabel: function genLabel() {
+      if (this.editable && this.focused) return null;
+
+      var data = {};
+
+      if (this.id) data.attrs = { for: this.id };
+
+      return this.$createElement('label', data, this.label);
     },
     getText: function getText(item) {
       return item === Object(item) ? item[this.itemText] : item;
@@ -6453,11 +6493,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       return item === Object(item) && this.itemValue in item ? item[this.itemValue] : item;
     },
     onScroll: function onScroll() {
-      var _this4 = this;
+      var _this5 = this;
 
       if (!this.isActive) {
         requestAnimationFrame(function () {
-          return _this4.content.scrollTop = 0;
+          return _this5.content.scrollTop = 0;
         });
       } else {
         var showMoreItems = this.content.scrollHeight - (this.content.scrollTop + this.content.clientHeight) < 200;
@@ -6468,26 +6508,26 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     },
     selectItem: function selectItem(item) {
-      var _this5 = this;
+      var _this6 = this;
 
       if (!this.multiple) {
         this.inputValue = this.returnObject ? item : this.getValue(item);
       } else {
         var inputValue = this.inputValue.slice();
         var i = this.inputValue.findIndex(function (i) {
-          return _this5.getValue(i) === _this5.getValue(item);
+          return _this6.getValue(i) === _this6.getValue(item);
         });
 
         i !== -1 && inputValue.splice(i, 1) || inputValue.push(item);
         this.inputValue = inputValue.map(function (i) {
-          return _this5.returnObject ? i : _this5.getValue(i);
+          return _this6.returnObject ? i : _this6.getValue(i);
         });
       }
 
       if (this.autocomplete) {
         this.$nextTick(function () {
-          _this5.searchValue = null;
-          _this5.$refs.input && _this5.$refs.input.focus();
+          _this6.searchValue = null;
+          _this6.$refs.input && _this6.$refs.input.focus();
         });
       }
 
@@ -6496,19 +6536,19 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   },
 
   render: function render(h) {
-    var _this6 = this;
+    var _this7 = this;
 
     return this.genInputGroup([this.genSelectionsAndSearch(), this.genMenu()], {
       ref: 'activator',
       directives: [{
         name: 'click-outside',
         value: function value() {
-          return _this6.isActive = false;
+          return _this7.isActive = false;
         }
       }],
       on: {
         keydown: function keydown(e) {
-          return _this6.$refs.menu.changeListIndex(e);
+          return _this7.$refs.menu.changeListIndex(e);
         }
       }
     });
@@ -6578,7 +6618,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
 
       var input = void 0;
 
-      if (this.autocomplete) {
+      if (this.autocomplete || this.editable) {
         input = [this.$createElement('input', {
           'class': 'input-group--select__autocomplete',
           domProps: { value: this.searchValue },
@@ -6590,17 +6630,17 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         })];
       }
 
+      var selections = this.isDirty && (!this.editable || this.editable && !this.focused) ? this.genSelections() : [];
+      selections.push(input);
       var group = this.$createElement('transition-group', {
-        props: {
-          name: 'fade-transition'
-        }
-      }, this.isDirty ? this.genSelections() : []);
+        props: { name: 'fade-transition' }
+      }, selections);
 
       return this.$createElement('div', {
         'class': 'input-group__selections',
         style: { 'overflow': 'hidden' },
         ref: 'activator'
-      }, [group, input]);
+      }, [group]);
     },
     genSelections: function genSelections() {
       var _this3 = this;
@@ -6641,6 +6681,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }, this.getText(item));
     },
     genCommaSelection: function genCommaSelection(item, comma) {
+      if (!item) {
+        console.log(this.selectedItems);
+      }
       return this.$createElement('div', {
         'class': 'input-group__selections__comma',
         key: item
@@ -7546,11 +7589,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     computedPagination: function computedPagination() {
       return this.pagination || this.defaultPagination;
     },
+    hasSelectAll: function hasSelectAll() {
+      return this.selectAll !== undefined && this.selectAll !== false;
+    },
     itemsLength: function itemsLength() {
       return this.totalItems || this.search && this.searchLength || this.items.length;
     },
     indeterminate: function indeterminate() {
-      return this.selectAll !== false && this.someItems && !this.everyItem;
+      return this.hasSelectAll && this.someItems && !this.everyItem;
     },
     everyItem: function everyItem() {
       var _this = this;
@@ -7612,9 +7658,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     },
     everyItem: function everyItem(val) {
       if (val) this.all = true;
-    },
-    itemsLength: function itemsLength() {
-      this.updatePagination({ totalItems: this.itemsLength });
     }
   },
 
@@ -7661,7 +7704,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     });
     this.defaultPagination.sortBy = firstSortable ? firstSortable.value : null;
 
-    this.updatePagination(Object.assign({}, this.defaultPagination, this.pagination, { totalItems: this.itemsLength }));
+    this.updatePagination(Object.assign({}, this.defaultPagination, this.pagination));
   },
   render: function render(h) {
     return h('v-table-overflow', {}, [h('table', {
@@ -7688,7 +7731,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var children = [];
 
       if (this.$scopedSlots.headers) {
-        var row = this.$scopedSlots.headers({ headers: this.headers });
+        var row = this.$scopedSlots.headers({
+          headers: this.headers,
+          indeterminate: this.indeterminate,
+          all: this.all
+        });
 
         children = row.length && row[0].tag === 'tr' ? row : this.genTR(row);
       } else {
@@ -7699,12 +7746,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           props: {
             dark: this.dark,
             light: this.light,
-            primary: this.selectAll === 'primary' || this.selectAll === true,
-            secondary: this.selectAll === 'secondary',
-            success: this.selectAll === 'success',
-            info: this.selectAll === 'info',
-            warning: this.selectAll === 'warning',
-            error: this.selectAll === 'error',
+            color: this.hasSelectAll ? this.selectAll : '',
             hideDetails: true,
             inputValue: this.all,
             indeterminate: this.indeterminate
@@ -7712,7 +7754,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           on: { change: this.toggle }
         });
 
-        this.selectAll && _row.unshift(this.$createElement('th', [checkbox]));
+        this.hasSelectAll && _row.unshift(this.$createElement('th', [checkbox]));
 
         children = this.genTR(_row);
       }
@@ -8502,17 +8544,30 @@ var TabsItems = {
     rightIconVisible: function rightIconVisible() {
       if (!this.isScrollable() || !this.isOverflowing) return;
 
-      var remaining = this.$refs.container.scrollWidth - (this.scrollOffset + this.$refs.container.clientWidth);
-      return remaining > this.$refs.container.children[this.itemOffset].clientWidth * 0.25;
+      // Check one scroll ahead to know the width of right-most item
+      var item = this.newOffsetRight(this.scrollOffset, this.itemOffset);
+      var lastItemWidth = item && this.$refs.container.children[item.index].clientWidth || 0;
+
+      return this.$refs.container.scrollWidth - (this.scrollOffset + this.$refs.container.clientWidth) > lastItemWidth * 0.30;
     }
   },
 
   methods: {
     scrollLeft: function scrollLeft() {
-      this.scrollOffset = this.newOffsetLeft();
+      var _newOffsetLeft = this.newOffsetLeft(this.scrollOffset, this.itemOffset),
+          offset = _newOffsetLeft.offset,
+          index = _newOffsetLeft.index;
+
+      this.scrollOffset = offset;
+      this.itemOffset = index;
     },
     scrollRight: function scrollRight() {
-      this.scrollOffset = this.newOffsetRight();
+      var _newOffsetRight = this.newOffsetRight(this.scrollOffset, this.itemOffset),
+          offset = _newOffsetRight.offset,
+          index = _newOffsetRight.index;
+
+      this.scrollOffset = offset;
+      this.itemOffset = index;
     },
     resize: function resize() {
       var _this = this;
@@ -8523,38 +8578,35 @@ var TabsItems = {
         _this.isOverflowing = _this.$refs.container.clientWidth < _this.$refs.container.scrollWidth;
       }, 50);
     },
-    newOffsetLeft: function newOffsetLeft() {
+    newOffsetLeft: function newOffsetLeft(currentOffset, currentIndex) {
       var items = this.$refs.container.children;
       var offset = 0;
 
-      for (var i = this.itemOffset - 1; i >= 0; i--) {
-        if (!items[i].classList.contains('tabs__slider')) {
-          if (offset + items[i].clientWidth >= this.$refs.container.clientWidth) {
-            this.itemOffset = i;
-            return this.scrollOffset - offset;
+      for (var index = currentIndex - 1; index >= 0; index--) {
+        if (!items[index].classList.contains('tabs__slider')) {
+          if (offset + items[index].clientWidth >= this.$refs.container.clientWidth) {
+            return { offset: currentOffset - offset, index: index + 1 };
           }
-          offset += items[i].clientWidth;
+          offset += items[index].clientWidth;
         }
       }
 
-      this.itemOffset = 0;
-      return 0;
+      return { offset: 0, index: 0 };
     },
-    newOffsetRight: function newOffsetRight() {
+    newOffsetRight: function newOffsetRight(currentOffset, currentIndex) {
       var items = this.$refs.container.children;
-      var offset = this.scrollOffset;
+      var offset = currentOffset;
 
-      for (var i = this.itemOffset; i < items.length; i++) {
-        if (!items[i].classList.contains('tabs__slider')) {
-          if (offset + items[i].clientWidth > this.scrollOffset + this.$refs.container.clientWidth) {
-            this.itemOffset = i;
-            return offset;
+      for (var index = currentIndex; index < items.length; index++) {
+        if (!items[index].classList.contains('tabs__slider')) {
+          if (offset + items[index].clientWidth > currentOffset + this.$refs.container.clientWidth) {
+            return { offset: offset, index: index };
           }
-          offset += items[i].clientWidth;
+          offset += items[index].clientWidth;
         }
       }
 
-      return 0;
+      return null;
     }
   },
 
