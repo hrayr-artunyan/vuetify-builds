@@ -124,11 +124,14 @@ export default {
     computedPagination () {
       return this.pagination || this.defaultPagination
     },
+    hasSelectAll () {
+      return this.selectAll !== undefined && this.selectAll !== false
+    },
     itemsLength () {
       return this.totalItems || this.search && this.searchLength || this.items.length
     },
     indeterminate () {
-      return this.selectAll !== false && this.someItems && !this.everyItem
+      return this.hasSelectAll && this.someItems && !this.everyItem
     },
     everyItem () {
       return this.filteredItems.length && this.filteredItems.every(i => this.isSelected(i))
@@ -182,9 +185,6 @@ export default {
     },
     everyItem (val) {
       if (val) this.all = true
-    },
-    itemsLength () {
-      this.updatePagination({ totalItems: this.itemsLength })
     }
   },
 
@@ -222,7 +222,7 @@ export default {
     const firstSortable = this.headers.find(h => !('sortable' in h) || h.sortable)
     this.defaultPagination.sortBy = firstSortable ? firstSortable.value : null
 
-    this.updatePagination(Object.assign({}, this.defaultPagination, this.pagination, { totalItems: this.itemsLength }))
+    this.updatePagination(Object.assign({}, this.defaultPagination, this.pagination))
   },
 
   render (h) {
